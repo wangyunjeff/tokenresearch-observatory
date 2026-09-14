@@ -1,0 +1,13 @@
+{
+  "name": "tokenresearch-observatory",
+  "version": "2.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node server/main.mjs",
+    "test": "node tests/server.test.mjs && node tests/integration.mjs && node tests/logic.test.cjs"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
