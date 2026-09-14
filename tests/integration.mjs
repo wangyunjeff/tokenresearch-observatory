@@ -25,7 +25,7 @@ const child=spawn(process.execPath,['server/main.mjs'],{cwd:root,env:{...process
 let logs='';child.stdout.on('data',x=>logs+=x);child.stderr.on('data',x=>logs+=x);
 try{
   const deadline=Date.now()+10000;let status;
-  while(Date.now()<deadline){try{const r=await fetch(`http://127.0.0.1:${appPort}/api/status`);if(r.ok){status=await r.json();if(status.candy.length===1&&status.pelicans.length===5)break;}}catch{}await new Promise(r=>setTimeout(r,350));}
+  while(Date.now()<deadline){try{const r=await fetch(`http://127.0.0.1:${appPort}/api/status`);if(r.ok){status=await r.json();if(status.candy.length===1&&status.candy[0]?.status==='completed'&&status.candy[0]?.final_answer==='21'&&status.pelicans.length===5)break;}}catch{}await new Promise(r=>setTimeout(r,350));}
   assert.ok(status,'status unavailable');
   assert.equal(status.mode,'live');
   assert.equal(status.candy.length,1);

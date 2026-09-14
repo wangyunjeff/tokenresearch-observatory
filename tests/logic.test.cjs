@@ -1,5 +1,6 @@
 const assert = require('node:assert/strict');
-const {gradeCandy,summarize,bucketize,median} = require('../logic.js');
+require('../logic.js');
+const {gradeCandy,summarize,bucketize,median} = globalThis.ObservatoryLogic;
 const cases = [
   [{status:'completed',final_answer:21},'ok'],
   [{status:'completed',final_answer:' 21 '},'ok'],
