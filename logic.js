@@ -28,7 +28,9 @@
     });
     slots.forEach(slot => {
       const t = summarize(slot.rows);
-      slot.status = t.wrong ? 'wrong' : t.error ? 'error' : t.running ? 'running' : t.ok ? 'ok' : 'none';
+      // A slot can contain more than one probe. Expose pass/fail conflicts so
+      // an older failure cannot hide a passing answer.
+      slot.status = t.ok && t.wrong ? 'mixed' : t.wrong ? 'wrong' : t.error ? 'error' : t.running ? 'running' : t.ok ? 'ok' : 'none';
       slot.counts = t;
     });
     return slots;

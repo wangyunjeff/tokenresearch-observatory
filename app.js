@@ -4,7 +4,7 @@
   const $ = id => document.getElementById(id);
   const L = window.ObservatoryLogic;
   const cfg = window.OBS_CONFIG;
-  const LABELS = {ok:'通过', wrong:'未通过', error:'请求失败', none:'无数据', running:'检测中'};
+  const LABELS = {ok:'通过', wrong:'未通过', mixed:'混合结果', error:'请求失败', none:'无数据', running:'检测中'};
   const CANDY_INTRO = '你正在参加一个可复核的逻辑推理测试。不使用任何外部工具。\n\n黑色袋子里有三种口味的糖果：苹果味、桃子味、西瓜味；每种口味都有圆形和五角星形两种形状，形状可以靠手感辨别。糖果数量如下：';
   const CANDY_TABLE = '        苹果味  桃子味  西瓜味\n圆形       5      5      5\n五角星形   5      5      5';
   const CANDY_RULES = '现在从袋中不放回地盲取糖果。要算“成功”，手中必须同时出现以下两种糖果中的至少一种组合：\n1. 圆形苹果味 + 五角星形桃子味；\n2. 圆形桃子味 + 五角星形苹果味。\n\n问题：最少取出多少颗糖果，才能保证一定成功？请给出简短、可核验的最坏情况证明。\n\n判定方法提示（不是答案）：请用“最大失败集合 + 1”的方法求最小保证数量。要分别检查同时避开两种成功组合的四种可能，不要只给出一个足够但不一定最小的分情况上界。\n\n输出协议（必须严格遵守）：\n- 只输出一个 JSON 对象；不要输出 Markdown、代码围栏、前后解释或其他文字。\n- JSON 必须有两个字段：final_answer（整数）和 reason（字符串）。\n- final_answer 只能填写你推理得到的最小数量；不要猜测或照抄任何预设答案。\n- reason 用不超过两句话说明“为什么少一颗仍可能失败，以及为什么再多一颗就一定成功”。';
@@ -150,10 +150,11 @@
     const occupied = slots.filter(x=>x.rows.length).length;
     const total = slots.reduce((n,x)=>n+x.rows.length,0);
     const counts = L.summarize(slots.flatMap(x=>x.rows));
-    $('spectrum-summary').textContent = `${total} 条记录 · ${counts.wrong} 未通过 · ${counts.error} 请求失败`;
+    const mixedSlots = slots.filter(x=>x.status==='mixed').length;
+    $('spectrum-summary').textContent = `${total} 条记录 · ${counts.wrong} 未通过 · ${counts.error} 请求失败${mixedSlots ? ` · ${mixedSlots} 个混合时段` : ''}`;
     $('spectrum-note').textContent = archived
       ? `档案中的 ${total} 条记录集中在 ${occupied} 个 10 分钟时段；未记录的时间不补造数据。每列从上到下对应 00、10、20、30、40、50 分，浅灰格晚于档案参考时点。`
-      : '每列从上到下对应 00、10、20、30、40、50 分。同一格多条结果合并展示，点击查看明细；空格不代表通过。';
+      : '每列从上到下对应 00、10、20、30、40、50 分。同一格多条结果合并展示；若同时出现通过和未通过，会标为混合结果，点击查看明细。空格不代表通过。';
   }
   function renderLatency(rows) {
     const sorted = rows.slice().sort((a,b)=>Date.parse(a.timestamp)-Date.parse(b.timestamp));

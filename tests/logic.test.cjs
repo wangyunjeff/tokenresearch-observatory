@@ -25,6 +25,8 @@ let slots=bucketize([{id:'a',timestamp:'2026-09-14T06:12:00Z',status:'completed'
 assert.equal(slots.length,144);assert.equal(slots.filter(s=>s.status==='ok').length,1);assert.equal(slots.filter(s=>s.status==='none').length,143);assert.equal(slots.flatMap(s=>s.rows).length,2);
 slots=bucketize([{timestamp:'2026-09-14T06:12:00Z',status:'completed',final_answer:21},{timestamp:'2026-09-14T06:12:30Z',status:'error'}],ref);
 assert.equal(slots.filter(s=>s.status==='error').length,1);
+slots=bucketize([{timestamp:'2026-09-14T06:12:00Z',status:'completed',final_answer:21},{timestamp:'2026-09-14T06:12:30Z',status:'completed',final_answer:16}],ref);
+assert.equal(slots.filter(s=>s.status==='mixed').length,1);
 slots=bucketize([{timestamp:'2026-09-14T06:12:00Z',status:'completed',final_answer:28},{timestamp:'2026-09-14T06:12:30Z',status:'error'}],ref);
 assert.equal(slots.filter(s=>s.status==='wrong').length,1);
 slots=bucketize([{timestamp:'invalid',status:'completed',final_answer:21},{timestamp:'2026-09-15T06:12:00Z',status:'completed',final_answer:21}],ref);assert.equal(slots.flatMap(s=>s.rows).length,0);
