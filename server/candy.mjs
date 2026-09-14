@@ -1,5 +1,5 @@
 import { CANDY_PROMPT } from './prompts.mjs';
-import { extractCandyFinalAnswer, extractResponsesText, gradeCandy, joinResponsesUrl, makeId, sanitizePublicError } from './lib.mjs';
+import { extractCandyFinalAnswer, extractResponsesText, gradeCandy, joinResponsesUrl, makeId, readResponsesBody, sanitizePublicError } from './lib.mjs';
 
 export async function runCandyProbe(config, store, fetchImpl = fetch) {
   const started = Date.now();
@@ -36,7 +36,7 @@ export async function runCandyProbe(config, store, fetchImpl = fetch) {
       signal:controller.signal
     });
     record.http_status = response.status;
-    const payload = await response.text();
+    const payload = await readResponsesBody(response);
     if (!response.ok) throw new Error(`Responses API returned HTTP ${response.status}`);
     const answer = extractResponsesText(payload);
     if (!answer) throw new Error('Responses API returned no output text');

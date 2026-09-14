@@ -53,6 +53,42 @@ export function extractResponsesText(value) {
   return deltas.join('') || (completed ? extractResponseText(completed) : '');
 }
 
+export async function readResponsesBody(response) {
+  if (!response.body?.getReader) return response.text();
+  const reader = response.body.getReader();
+  const decoder = new TextDecoder();
+  const chunks = [];
+  let carry = '';
+  let completed = false;
+  try {
+    while (true) {
+      const {value, done} = await reader.read();
+      if (done) break;
+      const chunk = decoder.decode(value, {stream:true});
+      chunks.push(chunk);
+      carry += chunk;
+      const lines = carry.split(/\r?\n/);
+      carry = lines.pop() || '';
+      for (const line of lines) {
+        if (!line.startsWith('data:')) continue;
+        const data = line.slice(5).trim();
+        if (!data || data === '[DONE]') continue;
+        try {
+          if (JSON.parse(data)?.type === 'response.completed') completed = true;
+        } catch {}
+      }
+      if (completed) {
+        await reader.cancel();
+        break;
+      }
+    }
+    chunks.push(decoder.decode());
+    return chunks.join('');
+  } finally {
+    reader.releaseLock();
+  }
+}
+
 export function extractCandyFinalAnswer(text) {
   const value = String(text || '').trim();
   if (/^21[。.!！]?$/u.test(value)) return '21';
