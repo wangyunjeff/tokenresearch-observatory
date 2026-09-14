@@ -28,6 +28,31 @@ export function extractResponseText(body) {
   return parts.join('\n').trim();
 }
 
+export function extractResponsesText(value) {
+  if (value && typeof value === 'object') return extractResponseText(value);
+  const raw = String(value || '').trim();
+  if (!raw) return '';
+  try {
+    return extractResponseText(JSON.parse(raw));
+  } catch {}
+
+  const deltas = [];
+  let completed = null;
+  for (const line of raw.split(/\r?\n/)) {
+    if (!line.startsWith('data:')) continue;
+    const data = line.slice(5).trim();
+    if (!data || data === '[DONE]') continue;
+    let event;
+    try { event = JSON.parse(data); } catch { continue; }
+    if (event?.type === 'response.output_text.delta' && typeof event.delta === 'string') {
+      deltas.push(event.delta);
+    } else if (event?.type === 'response.completed') {
+      completed = event.response || event;
+    }
+  }
+  return deltas.join('') || (completed ? extractResponseText(completed) : '');
+}
+
 export function extractCandyFinalAnswer(text) {
   const value = String(text || '').trim();
   if (/^21[。.!！]?$/u.test(value)) return '21';

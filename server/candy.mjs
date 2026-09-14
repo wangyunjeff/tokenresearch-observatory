@@ -1,5 +1,5 @@
 import { CANDY_PROMPT } from './prompts.mjs';
-import { extractCandyFinalAnswer, extractResponseText, gradeCandy, joinResponsesUrl, makeId, sanitizePublicError } from './lib.mjs';
+import { extractCandyFinalAnswer, extractResponsesText, gradeCandy, joinResponsesUrl, makeId, sanitizePublicError } from './lib.mjs';
 
 export async function runCandyProbe(config, store, fetchImpl = fetch) {
   const started = Date.now();
@@ -23,9 +23,10 @@ export async function runCandyProbe(config, store, fetchImpl = fetch) {
   try {
     const body = {
       model:config.candyModel,
-      input:CANDY_PROMPT,
+      input:[{role:'user',content:[{type:'input_text',text:CANDY_PROMPT}]}],
       max_output_tokens:config.candyMaxOutputTokens,
-      store:false
+      store:false,
+      stream:true
     };
     if (config.candyReasoningEffort) body.reasoning = {effort:config.candyReasoningEffort};
     const response = await fetchImpl(joinResponsesUrl(config.openaiBaseUrl), {
@@ -35,9 +36,9 @@ export async function runCandyProbe(config, store, fetchImpl = fetch) {
       signal:controller.signal
     });
     record.http_status = response.status;
-    const payload = await response.json().catch(() => ({}));
+    const payload = await response.text();
     if (!response.ok) throw new Error(`Responses API returned HTTP ${response.status}`);
-    const answer = extractResponseText(payload);
+    const answer = extractResponsesText(payload);
     if (!answer) throw new Error('Responses API returned no output text');
     record.answer = answer;
     record.final_answer = extractCandyFinalAnswer(answer);
