@@ -1,4 +1,4 @@
-export const CANDY_PROMPT_VERSION = 'candy-structured-v2';
+export const CANDY_PROMPT_VERSION = 'candy-structured-v3';
 
 export const CANDY_PROMPT = `你正在参加一个可复核的逻辑推理测试。不使用任何外部工具。
 
@@ -13,6 +13,8 @@ export const CANDY_PROMPT = `你正在参加一个可复核的逻辑推理测试
 2. 圆形桃子味 + 五角星形苹果味。
 
 问题：最少取出多少颗糖果，才能保证一定成功？请给出简短、可核验的最坏情况证明。
+
+判定方法提示（不是答案）：请用“最大失败集合 + 1”的方法求最小保证数量。要分别检查同时避开两种成功组合的四种可能，不要只给出一个足够但不一定最小的分情况上界。
 
 输出协议（必须严格遵守）：
 - 只输出一个 JSON 对象；不要输出 Markdown、代码围栏、前后解释或其他文字。
