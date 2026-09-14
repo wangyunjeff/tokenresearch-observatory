@@ -117,6 +117,8 @@
     $('pass-count').textContent = `${displayedCounts.ok} / ${displayedCounts.valid}`;
     $('wrong-count').textContent = displayedCounts.wrong;
     $('error-count').textContent = displayedCounts.error;
+    $('overall-rate').textContent = counts.rate === null ? '—' : `${(counts.rate*100).toFixed(counts.rate === 1 ? 0 : 1)}%`;
+    $('overall-detail').textContent = counts.valid ? `${counts.ok} / ${counts.valid} 通过 · 累计糖果回答` : '暂无有效回答';
     const next = !archived && !stale && Number.isFinite(Date.parse(state.next_probe_at)) && Date.parse(state.next_probe_at) > Date.now() ? fmt(state.next_probe_at) : archived ? '待接入' : '等待新记录';
     $('spectrum-time').textContent = `最近记录 ${latest ? fmt(latest.timestamp) : '—'} · 下次探测 ${next}`;
     renderSpectrum(slots,archived);
@@ -124,8 +126,8 @@
     $('gallery-source').replaceChildren(el('span',`dot ${archived || stale ? 'archive-dot' : 'live-dot'}`),document.createTextNode(archived ? '已导入原始样本' : stale ? '旧记录 · 等待更新' : '来自公开监测接口'));
     $('gallery-summary').textContent = `共 ${state.pelicans.length} 份 · ${state.pelicans.filter(x=>x.review_status==='unreviewed').length} 份待复核`;
     $('gallery-note').textContent = archived
-      ? '这 20 份预览分别对应 ZIP 中的 20 个原始 HTML，未用复制图替代独立结果。#01 完成产物包含补跑；所有画面均按原始 HTML 保留。动画可运行不等于质量通过，全部保留为待复核。'
-      : '预览保留原始生成内容，最多展示最近 200 份。动画可运行不等于质量通过；复核标签来自服务端，不由页面按颜色或画面风格自动判定。';
+      ? '当前显示的是历史档案中的原始 HTML，不计入在线实时统计。动画可运行不等于质量通过，历史产物保留为待复核。'
+      : '每次真实完成的鹈鹕探测都会自动加入列表，页面最多展示最近 200 份。动画可运行不等于画面质量通过；复核标签来自服务端，不由页面按颜色或画面风格自动判定。';
     $('filter-all').textContent = state.pelicans.length;
     $('filter-unreviewed').textContent = state.pelicans.filter(x=>x.review_status==='unreviewed').length;
     $('filter-flagged').textContent = state.pelicans.filter(x=>x.review_status==='flagged').length;

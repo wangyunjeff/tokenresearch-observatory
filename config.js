@@ -3,7 +3,7 @@ window.OBS_CONFIG = Object.freeze({
   // Same-origin public feed served by server/main.mjs. If unavailable, the UI falls back to the bundled archive.
   feedUrl: "/api/status",
   refreshMs: 600000,
-  maxDrawings: 5,
+  maxDrawings: 200,
   timeZone: "Asia/Shanghai"
 });
 

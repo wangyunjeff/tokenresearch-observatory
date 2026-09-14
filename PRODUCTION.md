@@ -67,7 +67,7 @@ Only **one real pelican execution** is performed per 30-minute probe.
 
 ## Public gallery provenance
 
-The gallery contains the latest real probe plus four curated reference examples selected from the previously supplied archive (`07`, `10`, `15`, `17`). They are explicitly labeled `实时探测` and `参考样例`. Reference material is never counted as a live probe.
+The gallery exposes all saved real pelican probe outputs in newest-first order, subject to the public display limit. Each displayed item is a server-side execution result; reference material and synthetic placeholders are not included in live results.
 
 The implementation deliberately does not backfill fabricated 5-hour monitoring data. Real history accumulates from the configured worker; existing historical data remains available in the repository archive fallback.
 

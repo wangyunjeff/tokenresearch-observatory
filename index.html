@@ -34,6 +34,7 @@
         </div>
         <aside class="protocol" aria-label="监测方案">
           <div class="protocol-heading"><span>OBSERVATION PROTOCOL</span><span aria-hidden="true">↗</span></div>
+          <div class="protocol-overall"><span>总体不降智率</span><strong id="overall-rate">—</strong><small id="overall-detail">等待有效回答</small></div>
           <div class="protocol-frequency"><strong>10</strong><span>min<br><small>计划探测间隔</small></span></div>
           <div class="protocol-row"><span>01 / 糖果推理</span><b>答案 = 21</b></div>
           <div class="protocol-row"><span>02 / 鹈鹕骑行</span><b>HTML + SVG</b></div>
@@ -59,7 +60,7 @@
       </section>
 
       <section id="pelican" class="section" aria-labelledby="pelican-title">
-        <div class="section-head"><div><p class="eyebrow">02 / PELICAN RIDE</p><h2 id="pelican-title">鹈鹕骑行</h2><p class="section-intro">同一道题，不同次生成。把原始 HTML 缩小放在这里，点击即可放大观看动画。</p></div><div class="section-meta"><span class="source-tag" id="gallery-source"><span class="dot archive-dot"></span>已导入样本</span><p id="gallery-summary">正在读取原始产物</p></div></div>
+        <div class="section-head"><div><p class="eyebrow">02 / PELICAN RIDE</p><h2 id="pelican-title">鹈鹕骑行</h2><p class="section-intro">同一道题，不同次生成。每次真实完成的 HTML 都会自动加入这里，点击即可放大观看动画。</p></div><div class="section-meta"><span class="source-tag" id="gallery-source"><span class="dot archive-dot"></span>已导入样本</span><p id="gallery-summary">正在读取原始产物</p></div></div>
         <div class="gallery-toolbar"><div class="filters" role="group" aria-label="按复核状态筛选"><button class="active" data-filter="all" aria-pressed="true" type="button">全部 <span id="filter-all">0</span></button><button data-filter="unreviewed" aria-pressed="false" type="button">待复核 <span id="filter-unreviewed">0</span></button><button data-filter="flagged" aria-pressed="false" type="button">疑似异常 <span id="filter-flagged">0</span></button></div><label class="search-label"><span aria-hidden="true">⌕</span><input id="gallery-search" type="search" placeholder="搜索样本 / 账号" aria-label="搜索样本编号或账号"></label></div>
         <div class="gallery" id="gallery"></div>
         <p id="gallery-empty" class="empty-state" hidden>这个筛选条件下没有记录。未复核的产物不会被自动判为通过或降质。</p>
