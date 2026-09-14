@@ -5,9 +5,10 @@
   const L = window.ObservatoryLogic;
   const cfg = window.OBS_CONFIG;
   const LABELS = {ok:'通过', wrong:'未通过', error:'请求失败', none:'无数据', running:'检测中'};
-  const CANDY_INTRO = '不使用任何外部工具回答以下问题：\n\n在一个黑色的袋子里放有三种口味的糖果，每种糖果有两种不同的形状（圆形和五角星形，不同的形状靠手感可以分辨）。现已知不同口味的糖和不同形状的数量统计如下表。参赛者需要在活动前决定摸出的糖果数目，那么，最少取出多少个糖果才能保证手中同时拥有不同形状的苹果味和桃子味的糖？（同时手中有圆形苹果味匹配五角星桃子味糖果，或者有圆形桃子味匹配五角星苹果味糖果都满足要求）';
-  const CANDY_TABLE = '        苹果味  桃子味  西瓜味\n圆形       7      9      8\n五角星形   7      6      4';
-  const PROMPTS = {candy: CANDY_INTRO + '\n\n' + CANDY_TABLE, pelican:'创建一个 HTML，内容是 SVG 绘制一个鹈鹕骑自行车的 2D 动画,不要使用任何技能'};
+  const CANDY_INTRO = '你正在参加一个可复核的逻辑推理测试。不使用任何外部工具。\n\n黑色袋子里有三种口味的糖果：苹果味、桃子味、西瓜味；每种口味都有圆形和五角星形两种形状，形状可以靠手感辨别。糖果数量如下：';
+  const CANDY_TABLE = '        苹果味  桃子味  西瓜味\n圆形       5      5      5\n五角星形   5      5      5';
+  const CANDY_RULES = '现在从袋中不放回地盲取糖果。要算“成功”，手中必须同时出现以下两种糖果中的至少一种组合：\n1. 圆形苹果味 + 五角星形桃子味；\n2. 圆形桃子味 + 五角星形苹果味。\n\n问题：最少取出多少颗糖果，才能保证一定成功？请给出简短、可核验的最坏情况证明。\n\n输出协议（必须严格遵守）：\n- 只输出一个 JSON 对象；不要输出 Markdown、代码围栏、前后解释或其他文字。\n- JSON 必须有两个字段：final_answer（整数）和 reason（字符串）。\n- final_answer 只能填写你推理得到的最小数量；不要猜测或照抄任何预设答案。\n- reason 用不超过两句话说明“为什么少一颗仍可能失败，以及为什么再多一颗就一定成功”。';
+  const PROMPTS = {candy: CANDY_INTRO + '\n\n' + CANDY_TABLE + '\n\n' + CANDY_RULES, pelican:'创建一个 HTML，内容是 SVG 绘制一个鹈鹕骑自行车的 2D 动画,不要使用任何技能'};
   let state = null, archive = null, filter = 'all', search = '', currentPrompt = '', currentDrawing = null;
   let visibleDrawings = [], refreshTimer = null, toastTimer = null;
   const frameCache = new Map();
@@ -233,11 +234,12 @@
     body.append(el('p','',kind==='candy'?CANDY_INTRO:PROMPTS.pelican));
     if (kind==='candy') {
       const table=document.createElement('table'); table.setAttribute('aria-label','各口味和形状的糖果数量');
-      [['形状','苹果味','桃子味','西瓜味'],['圆形','7','9','8'],['五角星形','7','6','4']].forEach((line,i)=>{
+      [['形状','苹果味','桃子味','西瓜味'],['圆形','5','5','5'],['五角星形','5','5','5']].forEach((line,i)=>{
         const tr=document.createElement('tr'); line.forEach((value,j)=>{const cell=el(i===0||j===0?'th':'td','',value);if(i===0)cell.scope='col';else if(j===0)cell.scope='row';tr.append(cell);});table.append(tr);
       }); body.append(table);
+      body.append(el('p','',CANDY_RULES));
     }
-    $('prompt-rule').textContent=kind==='candy'?'本站判分：最终答案必须为 21。不是 21 或未给明确答案，均未通过；正文偶然出现 21 不计。':'不使用任何技能。生成的 HTML 原样公开，以缩略预览和完整动画呈现；画面质量另行复核。';
+    $('prompt-rule').textContent=kind==='candy'?'本站判分：优先读取 JSON 的 final_answer 字段，严格等于 21 才通过；证明正文中的数字不会被当作最终答案。':'不使用任何技能。生成的 HTML 原样公开，以缩略预览和完整动画呈现；画面质量另行复核。';
     $('prompt-dialog').showModal();
   }
   async function copyPrompt() {

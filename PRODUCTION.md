@@ -22,7 +22,7 @@ OPENAI_API_KEY=YOUR-KEY
 CANDY_MODEL=YOUR-MODEL
 ```
 
-The worker posts the exact candy prompt to an OpenAI-compatible `Responses` endpoint. The public result contains the raw answer and a conservative extracted final answer. Only final answer `21` passes; merely mentioning `21` in reasoning does not pass.
+The worker posts the exact candy prompt to an OpenAI-compatible `Responses` endpoint. The prompt requires one JSON object with `final_answer` and a concise proof. Only a parsed `final_answer` of `21` passes; intermediate proof numbers do not participate in grading. Legacy non-JSON records retain conservative conclusion extraction, with boxed conclusions preferred over intermediate arithmetic.
 
 ## Codex Exec adapter
 

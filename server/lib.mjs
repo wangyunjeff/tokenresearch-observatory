@@ -89,19 +89,65 @@ export async function readResponsesBody(response) {
   }
 }
 
+function jsonObjectCandidates(value) {
+  const candidates = [value.replace(/^```(?:json)?\s*/iu, '').replace(/\s*```$/u, '').trim()];
+  for (let start = 0; start < value.length; start += 1) {
+    if (value[start] !== '{') continue;
+    let depth = 0;
+    let quoted = false;
+    let escaped = false;
+    for (let i = start; i < value.length; i += 1) {
+      const char = value[i];
+      if (quoted) {
+        if (escaped) escaped = false;
+        else if (char === '\\') escaped = true;
+        else if (char === '"') quoted = false;
+        continue;
+      }
+      if (char === '"') quoted = true;
+      else if (char === '{') depth += 1;
+      else if (char === '}' && --depth === 0) {
+        candidates.push(value.slice(start, i + 1));
+        break;
+      }
+    }
+  }
+  return [...new Set(candidates)].reverse();
+}
+
+function normalizeCandyAnswer(value) {
+  if (Number.isInteger(value) && value >= 0) return String(value);
+  if (typeof value === 'string' && /^\d{1,4}$/.test(value.trim())) return value.trim();
+  return null;
+}
+
 export function extractCandyFinalAnswer(text) {
   const value = String(text || '').trim();
-  if (/^21[。.!！]?$/u.test(value)) return '21';
-  const tail = value.slice(-1600);
-  const patterns = [
-    /(?:最终答案|答案(?:是|为)?|最终(?:应为|是)|所以答案(?:是|为)?)[^0-9]{0,18}(\d{1,4})(?!\d)/giu,
-    /(?:最少|至少)(?:需要)?(?:取出|摸出|拿出)?[^0-9]{0,18}(\d{1,4})(?!\d)/giu
-  ];
-  const hits = [];
-  for (const pattern of patterns) {
-    for (const match of tail.matchAll(pattern)) hits.push({index: match.index ?? -1, answer: match[1]});
+  if (!value) return null;
+
+  // New probes return one JSON object. Parse the field, never numbers inside the proof.
+  for (const candidate of jsonObjectCandidates(value)) {
+    try {
+      const parsed = JSON.parse(candidate);
+      const answer = normalizeCandyAnswer(parsed && !Array.isArray(parsed) ? parsed.final_answer : null);
+      if (answer !== null) return answer;
+    } catch {}
   }
-  if (hits.length) return hits.sort((a,b) => a.index - b.index).at(-1).answer;
+
+  // Legacy records: explicit conclusions and boxed answers take precedence over
+  // intermediate arithmetic such as "16 + 5 = 21".
+  const tail = value.slice(-2400);
+  const boxed = [...tail.matchAll(/\\boxed\s*\{\s*(\d{1,4})\s*(?:\\text\s*\{[^}]*\})?\s*\}/giu)];
+  if (boxed.length) return boxed.at(-1)[1];
+  const explicit = [];
+  for (const pattern of [
+    /(?:最终答案|最终结论|答案(?:是|为)?|所以答案(?:是|为)?)[^0-9]{0,24}(\d{1,4})(?!\d)/giu,
+    /(?:因此|所以)[^\n。！？]{0,100}(?:答案|最少|至少)[^0-9]{0,24}(\d{1,4})(?!\d)/giu
+  ]) {
+    for (const match of tail.matchAll(pattern)) explicit.push({index: match.index ?? -1, answer: match[1]});
+  }
+  if (explicit.length) return explicit.sort((a, b) => a.index - b.index).at(-1).answer;
+
   const lines = tail.split(/\r?\n/).map(x => x.trim()).filter(Boolean);
   const last = lines.at(-1) || '';
   const simple = last.match(/^(?:因此|所以|答[:：]?\s*)?\s*(\d{1,4})\s*(?:颗|个)?[。.!！]?$/u);

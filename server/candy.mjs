@@ -1,4 +1,4 @@
-import { CANDY_PROMPT } from './prompts.mjs';
+import { CANDY_PROMPT, CANDY_PROMPT_VERSION } from './prompts.mjs';
 import { extractCandyFinalAnswer, extractResponsesText, gradeCandy, joinResponsesUrl, makeId, readResponsesBody, sanitizePublicError } from './lib.mjs';
 
 export async function runCandyProbe(config, store, fetchImpl = fetch) {
@@ -13,6 +13,8 @@ export async function runCandyProbe(config, store, fetchImpl = fetch) {
     elapsed_seconds:null,
     model:config.publicModelLabel,
     reasoning_effort:config.candyReasoningEffort || 'default',
+    prompt_version:CANDY_PROMPT_VERSION,
+    answer_format:'json',
     http_status:null
   };
   store.state.candy.push(record);

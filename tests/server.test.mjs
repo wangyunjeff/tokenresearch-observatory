@@ -6,8 +6,11 @@ assert.equal(joinResponsesUrl('https://example.com/v1/responses/'),'https://exam
 assert.equal(extractResponseText({output_text:'21'}),'21');
 assert.equal(extractResponseText({output:[{type:'message',content:[{type:'output_text',text:'答案为 21'}]}]}),'答案为 21');
 assert.equal(extractResponsesText('event: response.output_text.delta\ndata: {"type":"response.output_text.delta","delta":"答案为 "}\n\nevent: response.output_text.delta\ndata: {"type":"response.output_text.delta","delta":"21"}\n\nevent: response.completed\ndata: {"type":"response.completed","response":{"output":[]}}\n\n'),'答案为 21');
+assert.equal(extractCandyFinalAnswer('{"final_answer":21,"reason":"20 颗仍可能只取到同形的苹果味和桃子味；第 21 颗打破这一情况。"}'),'21');
+assert.equal(extractCandyFinalAnswer('```json\n{"final_answer":"21","reason":"proof"}\n```'),'21');
 assert.equal(extractCandyFinalAnswer('推导中先考虑 21，但最终答案为 28。'),'28');
 assert.equal(extractCandyFinalAnswer('因此最少取出 21 颗。'),'21');
+assert.equal(extractCandyFinalAnswer('最少需要 21 个。\n要得到另一种组合，至少取 16+5=21 个。\n\\boxed{21}'),'21');
 assert.equal(extractCandyFinalAnswer('21'),'21');
 assert.equal(extractCandyFinalAnswer('我提到了21，但没有明确结论'),null);
 assert.equal(gradeCandy('21'),'ok');
