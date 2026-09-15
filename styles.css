@@ -6,4 +6,67 @@
 @media(max-width:440px){h1{font-size:29px}.eyebrow{font-size:8px}.gallery{grid-template-columns:repeat(2,minmax(0,1fr));gap:20px 13px}.drawing-card-head{font-size:10px}.drawing-meta,.drawing-model{font-size:9px}.gallery-toolbar .search-label{width:100%}.search-label input{width:100%}.question-body h2{font-size:19px}.question-bottom{font-size:10px}.section-meta{font-size:9px}.source-tag{font-size:10px}.legend-items{gap:9px}.data-notice{font-size:10px}.method-heading h2{font-size:20px}}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*:before,*:after{animation:none!important;transition:none!important}}
 .mixed{background:#876544}
+.shell{max-width:1280px;padding:0 32px}
+body{background:#f7f9f8}
+:root{--paper:#f7f9f8;--paper-dark:#edf1ef;--line:#d8dfdb;--none:#e4e8e6}
+body *{letter-spacing:0}
+.topbar{min-height:66px}
+.hero{gap:32px;padding:24px 0 18px;grid-template-columns:minmax(0,1fr) 260px}
+.hero h1{font:700 27px/1.5 var(--sans);margin:6px 0 8px;letter-spacing:0}
+.hero h1 em{font-style:normal;font-size:20px;white-space:nowrap}
+.intro{font-size:12px;line-height:1.8}
+.protocol{padding:0;border:0;border-left:1px solid var(--line);padding-left:24px}
+.protocol:before,.protocol:after{display:none}
+.protocol .protocol-overall{border:0;padding:0 0 8px}
+.protocol .protocol-overall strong{font:600 34px/1.2 var(--mono)}
+.protocol .protocol-overall>span{font:12px var(--sans)}
+.protocol-bottom{margin:0;padding:4px 0 0;background:none;border:0;color:var(--muted)}
+.data-notice{background:#edf2ef;border-left-color:var(--forest);padding:7px 12px;color:var(--muted)}
+.disclosure{border-bottom:1px solid var(--line);padding:0;margin:0}
+.disclosure>summary{cursor:pointer;padding:11px 0;font-size:12px;color:var(--muted);min-height:42px}
+.disclosure>summary:hover{color:var(--forest)}
+.disclosure>summary:focus-visible{outline:2px solid var(--forest);outline-offset:2px}
+.question-grid{padding:0 0 12px;gap:24px}
+.question-card{border:0;padding:8px 0}
+.question-body h2{font:600 17px/1.5 var(--sans)}
+.section{padding-top:24px}
+.section-head{margin-bottom:12px;gap:16px}
+.section-head h2{font:700 23px/1.4 var(--sans);letter-spacing:0;margin:3px 0 0}
+.section-head .eyebrow{font-size:9px}
+.summary-strip{margin-bottom:14px}
+.summary-strip>div{padding-top:8px;padding-bottom:8px}
+.summary-strip strong{font-size:21px;letter-spacing:0}
+.hour-column{grid-template-rows:repeat(6,12px);gap:3px}
+.spectrum-grid,.hour-axis{gap:4px}
+.spectrum-legend{margin-top:6px;font-size:10px}
+.latency-details{margin-top:8px}
+.latency-details summary .mono{float:right;font-size:11px}
+.section-foot{padding-bottom:12px}
+.section-intro{display:none}
+.gallery-toolbar{margin-bottom:14px}
+.gallery{grid-template-columns:repeat(6,minmax(0,1fr));gap:16px 12px}
+.drawing-card-head{font:500 10px var(--sans)}
+.drawing-title{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+.review-label{flex-shrink:0}
+.thumb-button{border-radius:4px;background:#edf1ef}
+.drawing-meta{font-size:10px;flex-wrap:wrap}
+.gallery-pagination{display:flex;justify-content:space-between;align-items:center;padding:14px 0 6px;font-size:12px;color:var(--muted)}
+.gallery-pagination>div{display:flex;gap:8px}
+.page-button{width:36px;height:34px;background:transparent;border:1px solid var(--line);border-radius:4px;color:var(--forest);font-size:18px}
+.page-button:hover:not(:disabled){background:#e8efeb}
+.method-details{margin-top:16px}
+.method-section{border:0;margin:0;padding:8px 0 16px}
+.method-heading{display:none}
+.method-grid{margin:0;gap:24px}
+.method-grid h3{font-size:16px}
+.viewer-dialog{width:min(1200px,calc(100vw - 24px));max-height:96dvh;background:#fff;border-radius:6px}
+.viewer-stage{width:min(100%, calc(62dvh * 1.5));aspect-ratio:3/2;max-height:none;margin:auto;border:0;position:relative;background:#edf1ef}
+.viewer-stage iframe{width:960px;height:640px;transform-origin:top left;position:absolute;inset:0}
+.viewer-toolbar .text-button[aria-pressed="true"]{border-bottom-color:var(--forest);font-weight:700}
+.viewer-meta,.answer-meta,.viewer-toolbar .muted{overflow-wrap:anywhere;min-width:0}
+.answer-list{max-height:120px;overflow:auto}
+footer{margin-top:20px;padding:18px 0}
+@media(max-width:1000px){.gallery{grid-template-columns:repeat(4,minmax(0,1fr))}.hero h1{font-size:23px}.shell{padding:0 24px}}
+@media(max-width:760px){.shell{padding:0 16px}.topbar{padding:12px 0;gap:8px;min-height:60px}.topbar nav{margin-top:4px}.hero{grid-template-columns:1fr;gap:14px;padding:18px 0 14px}.hero h1{font-size:23px}.hero h1 em{font-size:18px}.hero>.protocol{display:block;border-left:0;border-top:1px solid var(--line);padding:12px 0 0}.protocol .protocol-overall{grid-template-columns:1fr auto;align-items:center;padding:0}.protocol .protocol-overall strong{font-size:30px}.protocol .protocol-overall small{margin-top:0}.protocol-bottom{display:none}.section{padding-top:22px}.section-head h2{font-size:21px}.section-meta{font-size:10px}.question-grid{grid-template-columns:1fr;gap:12px}.gallery{grid-template-columns:repeat(3,minmax(0,1fr));gap:14px 10px}.gallery-toolbar{gap:10px}.filters button{padding:7px 9px}.gallery-toolbar .search-label{width:100%}.search-label input{width:100%}.latency-details summary .mono{float:none;display:block;margin-left:15px}.method-grid{grid-template-columns:1fr}.viewer-dialog{padding:12px}.viewer-toolbar{gap:8px}.viewer-bottom{gap:8px}.dialog-head h2{font-size:19px}}
+@media(max-width:440px){.gallery{grid-template-columns:repeat(2,minmax(0,1fr))}.summary-strip strong{font-size:20px}.drawing-card-head{font-size:11px}.hero h1 em{display:block}.data-notice #data-message{min-width:0}.notice-label{display:none}}
 .protocol-overall{display:grid;grid-template-columns:1fr auto;column-gap:12px;align-items:end;border-top:1px solid var(--line);padding:13px 0 14px}.protocol-overall>span{font:9px var(--mono);letter-spacing:.08em;color:var(--muted)}.protocol-overall strong{font:500 41px/1 var(--serif);letter-spacing:0;color:var(--forest)}.protocol-overall small{grid-column:1/-1;margin-top:7px;font:10px var(--mono);color:var(--muted)}

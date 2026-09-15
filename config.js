@@ -10,7 +10,7 @@ window.OBS_CONFIG = Object.freeze({
 // Keep the static HTML usable as a fallback while reflecting the production cadence when this config is loaded.
 document.addEventListener('DOMContentLoaded', () => {
   const intro = document.querySelector('.intro');
-  if (intro) intro.innerHTML = '这里是 <strong>Token Research</strong> 为「ChatGPT 不降质分组」设立的公开观测台。糖果推理题<strong>每 10 分钟</strong>探测一次，鹈鹕动画题<strong>每 30 分钟</strong>探测一次，观察回答与生成质量。结果公开，直接查看，无需填写 API Key。';
+  if (intro) intro.innerHTML = '糖果推理 <strong>每 10 分钟</strong> · 鹈鹕动画 <strong>每 30 分钟</strong> · 公开测试记录';
   const rows = document.querySelectorAll('.protocol-row');
   if (rows[1]?.querySelector('b')) rows[1].querySelector('b').textContent = '每 30 分钟';
   const method = document.querySelectorAll('.method-grid article')[2]?.querySelector('p');

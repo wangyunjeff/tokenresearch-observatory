@@ -7,14 +7,14 @@
   <meta name="description" content="Token Research 的 ChatGPT 不降质分组实时智力测试观测台：每 10 分钟一轮，公开糖果题光谱与鹈鹕骑行 SVG 动画测试结果。">
   <title>ChatGPT 不降质分组实时智力测试 · Token Research</title>
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%2317483c'/%3E%3Cpath d='M17 20h30M32 20v27' fill='none' stroke='%23f4c958' stroke-width='6'/%3E%3C/svg%3E">
-  <link rel="stylesheet" href="styles.css">
-  <script src="config.js" defer></script>
+  <link rel="stylesheet" href="styles.css?v=compact-20260915">
+  <script src="config.js?v=compact-20260915" defer></script>
   <script src="logic.js" defer></script>
   <script src="data/archive.js" defer></script>
   <script src="data/archive-2.js" defer></script>
   <script src="data/archive-3.js" defer></script>
   <script src="data/archive-4.js" defer></script>
-  <script src="app.js" defer></script>
+  <script src="app.js?v=compact-20260915" defer></script>
 </head>
 <body>
   <a class="skip-link" href="#main">跳到主要内容</a>
@@ -27,48 +27,48 @@
     <main id="main">
       <section class="hero" aria-labelledby="page-title">
         <div>
-          <p class="eyebrow"><span class="tiny-cross" aria-hidden="true">✳</span> KEEP THE REASONING. SEE THE RESULTS.</p>
-          <h1 id="page-title">ChatGPT 不降质分组<br><em>实时智力测试。</em></h1>
+          <p class="eyebrow">TOKEN RESEARCH / LIVE</p>
+          <h1 id="page-title">ChatGPT 不降质分组 <em>实时观测</em></h1>
           <p class="intro">这里是 <strong>Token Research</strong> 为「ChatGPT 不降质分组」设立的公开观测台。以<strong>每 10 分钟一轮</strong>的节奏，通过糖果推理题与鹈鹕动画题两项测试，观察回答与生成质量。结果公开，直接查看，无需填写 API Key。</p>
-          <div class="hero-links"><a href="#candy">查看测试结果 <span aria-hidden="true">↓</span></a><a class="muted-link" href="#questions">我们具体测什么？</a></div>
         </div>
         <aside class="protocol" aria-label="监测方案">
-          <div class="protocol-heading"><span>OBSERVATION PROTOCOL</span><span aria-hidden="true">↗</span></div>
           <div class="protocol-overall"><span>总体不降智率</span><strong id="overall-rate">—</strong><small id="overall-detail">等待有效回答</small></div>
-          <div class="protocol-frequency"><strong>10</strong><span>min<br><small>计划探测间隔</small></span></div>
-          <div class="protocol-row"><span>01 / 糖果推理</span><b>答案 = 21</b></div>
-          <div class="protocol-row"><span>02 / 鹈鹕骑行</span><b>HTML + SVG</b></div>
           <div class="protocol-bottom"><span class="dot archive-dot"></span><span id="protocol-state">历史样本 · 实时探测待接入</span></div>
         </aside>
       </section>
 
       <div class="data-notice" role="status" id="data-notice"><span class="notice-label">数据来源</span><span id="data-message">正在读取已导入的测试档案。未接入监测服务前，不显示虚构的实时状态。</span><button id="refresh" class="text-button" type="button">刷新数据 ↻</button></div>
 
-      <section id="questions" class="question-grid" aria-label="两道测试题目">
+      <details id="questions" class="disclosure"><summary>测试题目与判定标准</summary>
+      <section class="question-grid" aria-label="两道测试题目">
         <article class="question-card"><div class="question-mark" aria-hidden="true">01</div><div class="question-body"><p class="eyebrow">REASONING / 逻辑推理</p><h2>一袋糖果，最少取几颗？</h2><p>六类糖果各有 5 颗，判断取得多少颗后，必然出现指定的异形苹果味与桃子味组合。</p><div class="question-bottom"><span class="answer-rule">最终答案 <b>21</b> 才算通过</span><button class="text-button" data-prompt="candy" type="button">完整题目 ↗</button></div></div></article>
         <article class="question-card"><div class="question-mark" aria-hidden="true">02</div><div class="question-body"><p class="eyebrow">CREATION / 图形与动画</p><h2>让一只鹈鹕，骑起自行车。</h2><p>创建一个 HTML，用 SVG 绘制鹈鹕骑自行车的 2D 动画。不得使用任何技能，直接呈现生成结果。</p><div class="question-bottom"><span class="answer-rule">查看原始 HTML <b>↗</b></span><button class="text-button" data-prompt="pelican" type="button">完整题目 ↗</button></div></div></article>
       </section>
 
+      </details>
       <section id="candy" class="section" aria-labelledby="candy-title">
         <div class="section-head"><div><p class="eyebrow">01 / CANDY ASSAY</p><h2 id="candy-title">糖果题光谱</h2></div><div class="section-meta"><p>144 个时段 · 每格 10 分钟 · 北京时间</p><p id="spectrum-time">最近记录 — · 下次探测：待接入</p></div></div>
         <div class="summary-strip" aria-label="糖果测试统计"><div><span id="rate-label">样本回答通过率</span><strong id="pass-rate">—</strong></div><div><span>通过 / 有效回答</span><strong id="pass-count">—</strong></div><div><span>未通过</span><strong id="wrong-count">—</strong></div><div><span>请求失败</span><strong id="error-count">—</strong></div></div>
         <div class="spectrum-scroll" tabindex="0" aria-label="24 小时光谱；从左到右，每列从上到下；窄屏可横向滚动"><div class="spectrum-grid" id="spectrum" aria-label="糖果题状态网格"></div><div class="hour-axis" id="hour-axis" aria-hidden="true"></div></div>
         <div class="spectrum-legend"><div class="legend-items"><span><i class="ok"></i>通过</span><span><i class="wrong"></i>未通过</span><span><i class="mixed"></i>混合结果</span><span><i class="error"></i>请求失败</span><span><i class="none"></i>无数据</span><span><i class="running"></i>检测中</span></div><span id="spectrum-summary" class="mono">等待数据</span></div>
-        <div class="chart-heading"><span>糖果响应耗时 <small>按实际请求顺序 / 秒</small></span><span class="mono" id="latency-label">—</span></div>
+        <details class="disclosure latency-details"><summary>响应耗时与统计详情 <span class="mono" id="latency-label">—</span></summary>
         <svg id="latency-chart" class="latency-chart" viewBox="0 0 1200 72" preserveAspectRatio="none" role="img" aria-label="实际糖果请求的响应耗时曲线"><path id="latency-area" class="latency-area"></path><path id="latency-line" class="latency-line"></path></svg>
         <div class="section-foot"><p id="spectrum-note">同一格内的多条记录合并展示，点击可查看每条回答。没有记录的时间保留为空，不补造测试结果。</p><button id="all-answers" class="text-button" type="button">查看原始回答 ↗</button></div>
+        </details>
       </section>
 
       <section id="pelican" class="section" aria-labelledby="pelican-title">
         <div class="section-head"><div><p class="eyebrow">02 / PELICAN RIDE</p><h2 id="pelican-title">鹈鹕骑行</h2><p class="section-intro">同一道题，不同次生成。每次真实完成的 HTML 都会自动加入这里，点击即可放大观看动画。</p></div><div class="section-meta"><span class="source-tag" id="gallery-source"><span class="dot archive-dot"></span>已导入样本</span><p id="gallery-summary">正在读取原始产物</p></div></div>
         <div class="gallery-toolbar"><div class="filters" role="group" aria-label="按复核状态筛选"><button class="active" data-filter="all" aria-pressed="true" type="button">全部 <span id="filter-all">0</span></button><button data-filter="unreviewed" aria-pressed="false" type="button">待复核 <span id="filter-unreviewed">0</span></button><button data-filter="flagged" aria-pressed="false" type="button">疑似异常 <span id="filter-flagged">0</span></button></div><label class="search-label"><span aria-hidden="true">⌕</span><input id="gallery-search" type="search" placeholder="搜索样本 / 账号" aria-label="搜索样本编号或账号"></label></div>
         <div class="gallery" id="gallery"></div>
+        <div class="gallery-pagination" id="gallery-pagination"><span id="gallery-page" role="status"></span><div><button id="gallery-prev" class="page-button" type="button" aria-label="上一页样本" title="上一页">←</button><button id="gallery-next" class="page-button" type="button" aria-label="下一页样本" title="下一页">→</button></div></div>
         <p id="gallery-empty" class="empty-state" hidden>这个筛选条件下没有记录。未复核的产物不会被自动判为通过或降质。</p>
-        <p class="gallery-note" id="gallery-note">原始动画在隔离预览中显示。能够渲染、画面会动，不等于画面质量通过；不以单次输出判断完整模型能力。</p>
+        <details class="disclosure"><summary>样本来源与复核说明</summary><p class="gallery-note" id="gallery-note">原始动画在隔离预览中显示。能够渲染、画面会动，不等于画面质量通过；不以单次输出判断完整模型能力。</p></details>
       </section>
 
+      <details class="disclosure method-details"><summary>统计口径与测试方式</summary>
       <section id="method" class="method-section" aria-labelledby="method-title"><div class="method-heading"><p class="eyebrow">READING THE SIGNAL</p><h2 id="method-title">如何读懂这些结果？</h2></div><div class="method-grid"><article><span>01 — 判分</span><h3>只看最终答案</h3><p>糖果题最终答案为 <b>21</b> 才通过。最终答案不是 21，或没有明确答案，均记为未通过。推导中提到 21 不算通过。</p></article><article><span>02 — 统计</span><h3>请求失败，单独记录</h3><p>通过率 = 通过次数 ÷ 有效回答次数。请求失败不进入回答通过率分母。同格同时出现通过和未通过时显示“混合结果”，并保留每条原始记录供查看。</p></article><article><span>03 — 探测</span><h3>两道题，独立请求</h3><p>监测方案为每 10 分钟发起两项独立测试，不沿用上一轮对话。糖果题禁用外部工具，鹈鹕题禁用技能；历史档案与在线数据分开标记。</p></article></div></section>
-      <section class="relay-banner" aria-label="进入中转站"><div><p class="eyebrow">TOKEN RESEARCH</p><h2>从观察，到研究。</h2><p>观测台看结果，中转站开始使用。</p></div><a href="https://tokenresearch.com.cn/" target="_blank" rel="noopener noreferrer">进入 Token Research 中转站 <span aria-hidden="true">↗</span></a></section>
+      </details>
     </main>
     <footer><span>TOKEN RESEARCH © 2026</span><span>公开记录 · 独立测试 · 原始产物</span><a href="https://github.com/wangyunjeff/tokenresearch-observatory" target="_blank" rel="noopener noreferrer">GitHub ↗</a></footer>
   </div>

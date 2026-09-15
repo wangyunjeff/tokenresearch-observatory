@@ -11,6 +11,8 @@
   const PROMPTS = {candy: CANDY_INTRO + '\n\n' + CANDY_TABLE + '\n\n' + CANDY_RULES, pelican:'创建一个 HTML，内容是 SVG 绘制一个鹈鹕骑自行车的 2D 动画,不要使用任何技能'};
   let state = null, archive = null, filter = 'all', search = '', currentPrompt = '', currentDrawing = null;
   let visibleDrawings = [], refreshTimer = null, toastTimer = null;
+  const compactGallery = window.matchMedia('(max-width:760px)');
+  let galleryPage = 0;
   const frameCache = new Map();
   const viewObserver = 'IntersectionObserver' in window ? new IntersectionObserver(entries => {
     entries.forEach(entry => {
@@ -111,7 +113,7 @@
     $('protocol-state').textContent = archived ? '历史样本 · 实时探测待接入' : stale ? '记录已过期 · 等待新数据' : '已接入公开监测数据';
     $('data-message').textContent = archived
       ? `已导入 ${state.archive_date || '2026-09-14'} 测试档案：${state.candy.length} 条糖果回答、${state.pelicans.length} 份鹈鹕 HTML。当前不是实时监测；服务端探测接入后每 10 分钟更新。`
-      : `${stale ? '数据已过期。' : '已接入公开数据。'}服务端记录截至 ${fmt(state.as_of)}，页面每 10 分钟读取一次结果；浏览器不会调用模型。`;
+      : `${stale ? '数据已过期 · ' : ''}更新于 ${fmt(state.as_of)} · 北京时间`;
     $('rate-label').textContent = archived ? '样本回答通过率' : '窗口回答通过率';
     // Live feeds may contain older records: the summary must use the same visible window.
     const reference = archived ? state.as_of : new Date().toISOString();
@@ -220,18 +222,26 @@
     const gallery=$('gallery'); gallery.replaceChildren();
     visibleDrawings=state.pelicans.filter(row=>(filter==='all'||row.review_status===filter)&&(`${row.id} ${String(row.trial).padStart(2,'0')} ${row.account_label} ${row.model}`).toLowerCase().includes(search));
     $('gallery-empty').hidden=visibleDrawings.length>0;
-    visibleDrawings.forEach(row=>{
+    const pageSize=compactGallery.matches?6:12;
+    const pages=Math.ceil(visibleDrawings.length/pageSize);
+    galleryPage=Math.min(galleryPage,Math.max(0,pages-1));
+    $('gallery-pagination').hidden=pages===0;
+    $('gallery-page').textContent=`${galleryPage+1} / ${pages} 页 · 共 ${visibleDrawings.length} 份`;
+    $('gallery-prev').disabled=galleryPage===0;
+    $('gallery-next').disabled=galleryPage>=pages-1;
+    visibleDrawings.slice(galleryPage*pageSize,(galleryPage+1)*pageSize).forEach(row=>{
       const card=el('article','drawing-card');
       const head=el('div','drawing-card-head');
       const title=row.account_label||`原始样本 / ${String(row.trial).padStart(2,'0')}`;
-      head.append(el('span','',title),el('span',`review-label ${row.review_status}`,row.review_status==='flagged'?'疑似异常':row.review_status==='reviewed'?'已复核':'待复核'));
+      const titleNode=el('span','drawing-title',title); titleNode.title=title;
+      head.append(titleNode,el('span',`review-label ${row.review_status}`,row.review_status==='flagged'?'疑似异常':row.review_status==='reviewed'?'已复核':'待复核'));
       const button=el('button','thumb-button'); button.type='button'; button.setAttribute('aria-label',`放大查看${title}的原始 HTML 动画`);
       const stage=el('div','thumb-stage'); stage.dataset.id=row.id; stage.append(el('span','thumb-placeholder',String(row.trial).padStart(2,'0')));
       button.append(stage,el('span','thumb-hover','查看原始动画 ↗'));
       button.addEventListener('click',()=>openDrawing(row.id));
       const meta=el('div','drawing-meta');
       meta.append(el('span','',row.timestamp?fmt(row.timestamp):row.date||'未提供日期'),el('span','',row.elapsed_seconds===null?'耗时未提供':`${row.elapsed_seconds.toFixed(1)} 秒`));
-      card.append(head,button,meta,el('div','drawing-model',`${row.model} · ${row.reasoning_effort}${row.retried?' · 曾补跑':''}`)); gallery.append(card);
+      card.append(head,button,meta); gallery.append(card);
       sizeObserver?.observe(stage);
       if (viewObserver) viewObserver.observe(stage); else mountThumb(stage);
     });
@@ -288,8 +298,15 @@
   function showAnimation() {
     $('viewer-source').hidden=true; $('viewer-stage').hidden=false;
     $('viewer-stage').replaceChildren(makeFrame(currentDrawing,false));
+    requestAnimationFrame(scaleViewer);
     $('view-animation').setAttribute('aria-pressed','true'); $('view-source').setAttribute('aria-pressed','false');
   }
+  function scaleViewer() {
+    const stage=$('viewer-stage'), frame=stage.querySelector('iframe');
+    if (frame) frame.style.transform=`scale(${stage.clientWidth/960})`;
+  }
+  const viewerObserver=new ResizeObserver(scaleViewer);
+  viewerObserver.observe($('viewer-stage'));
   function moveDrawing(delta) {
     const i=visibleDrawings.findIndex(x=>x.id===currentDrawing?.id);
     if(visibleDrawings[i+delta])openDrawing(visibleDrawings[i+delta].id);
@@ -301,9 +318,19 @@
   });
   $('viewer-dialog').addEventListener('close',()=>{$('viewer-stage').replaceChildren();currentDrawing=null;});
   document.querySelectorAll('[data-filter]').forEach(b=>b.addEventListener('click',()=>{
-    filter=b.dataset.filter;document.querySelectorAll('[data-filter]').forEach(x=>{x.classList.toggle('active',x===b);x.setAttribute('aria-pressed',String(x===b));});if(state)renderGallery();
+    filter=b.dataset.filter;galleryPage=0;document.querySelectorAll('[data-filter]').forEach(x=>{x.classList.toggle('active',x===b);x.setAttribute('aria-pressed',String(x===b));});if(state)renderGallery();
   }));
-  $('gallery-search').addEventListener('input',e=>{search=e.target.value.trim().toLowerCase();if(state)renderGallery();});
+  $('gallery-search').addEventListener('input',e=>{search=e.target.value.trim().toLowerCase();galleryPage=0;if(state)renderGallery();});
+  function changePage(delta) {
+    galleryPage+=delta;renderGallery();
+    $('pelican').scrollIntoView({block:'start'});
+    const control=$(delta>0?'gallery-next':'gallery-prev');
+    (control.disabled?$(delta>0?'gallery-prev':'gallery-next'):control).focus({preventScroll:true});
+  }
+  $('gallery-prev').addEventListener('click',()=>changePage(-1));
+  $('gallery-next').addEventListener('click',()=>changePage(1));
+  compactGallery.addEventListener('change',()=>{galleryPage=0;if(state)renderGallery();});
+  document.querySelector('a[href="#questions"]').addEventListener('click',()=>{$('questions').open=true;});
   $('copy-prompt').addEventListener('click',copyPrompt);
   $('refresh').addEventListener('click',()=>refresh(true));
   $('all-answers').addEventListener('click',()=>{if(state)openAnswers(state.candy,`${state.mode==='archive'?'历史档案':'接口记录'} / ${state.candy.length} 条原始回答`);});
@@ -315,5 +342,5 @@
   refresh();
   if(cfg.feedUrl)refreshTimer=setInterval(()=>{if(!document.hidden)refresh();},Math.max(L.STEP,cfg.refreshMs||L.STEP));
   document.addEventListener('visibilitychange',()=>{if(!document.hidden&&cfg.feedUrl)refresh();});
-  window.addEventListener('pagehide',()=>{clearInterval(refreshTimer);viewObserver?.disconnect();sizeObserver?.disconnect();});
+  window.addEventListener('pagehide',()=>{clearInterval(refreshTimer);viewObserver?.disconnect();sizeObserver?.disconnect();viewerObserver.disconnect();});
 })();
