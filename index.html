@@ -7,14 +7,17 @@
   <meta name="description" content="Token Research 的 ChatGPT 不降质分组实时智力测试观测台：每 10 分钟一轮，公开糖果题光谱与鹈鹕骑行 SVG 动画测试结果。">
   <title>ChatGPT 不降质分组实时智力测试 · Token Research</title>
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%2317483c'/%3E%3Cpath d='M17 20h30M32 20v27' fill='none' stroke='%23f4c958' stroke-width='6'/%3E%3C/svg%3E">
-  <link rel="stylesheet" href="styles.css?v=compact-20260915">
+  <link rel="stylesheet" href="styles.css?v=orbit-20260915">
+  <link rel="stylesheet" href="motion.css?v=orbit-20260915">
   <script src="config.js?v=compact-20260915" defer></script>
   <script src="logic.js" defer></script>
   <script src="data/archive.js" defer></script>
   <script src="data/archive-2.js" defer></script>
   <script src="data/archive-3.js" defer></script>
   <script src="data/archive-4.js" defer></script>
-  <script src="app.js?v=compact-20260915" defer></script>
+  <script src="vendor/gsap.min.js" defer></script>
+  <script src="motion.js?v=orbit-20260915" defer></script>
+  <script src="app.js?v=orbit-20260915" defer></script>
 </head>
 <body>
   <a class="skip-link" href="#main">跳到主要内容</a>
@@ -26,14 +29,27 @@
     </header>
     <main id="main">
       <section class="hero" aria-labelledby="page-title">
-        <div>
-          <p class="eyebrow">TOKEN RESEARCH / LIVE</p>
-          <h1 id="page-title">ChatGPT 不降质分组 <em>实时观测</em></h1>
+        <div class="hero-copy">
+          <p class="eyebrow"><span class="signal-dot" aria-hidden="true"></span> TOKEN RESEARCH / OBSERVATORY</p>
+          <h1 id="page-title">ChatGPT 不降质分组<br><em>实时智力观测。</em></h1>
+          <p class="hero-product">逻辑推理与动画生成 · 两项独立测试</p>
           <p class="intro">这里是 <strong>Token Research</strong> 为「ChatGPT 不降质分组」设立的公开观测台。以<strong>每 10 分钟一轮</strong>的节奏，通过糖果推理题与鹈鹕动画题两项测试，观察回答与生成质量。结果公开，直接查看，无需填写 API Key。</p>
+          <div class="hero-index" aria-hidden="true"><span>01 / REASONING</span><span>02 / CREATION</span><span class="index-line"></span></div>
         </div>
-        <aside class="protocol" aria-label="监测方案">
-          <div class="protocol-overall"><span>总体不降智率</span><strong id="overall-rate">—</strong><small id="overall-detail">等待有效回答</small></div>
+        <aside class="protocol orbital-protocol" aria-label="通过率仪表">
+          <div class="orbit-scene">
+            <div class="orbit-track track-one" aria-hidden="true"></div><div class="orbit-track track-two" aria-hidden="true"></div>
+            <div class="orbit-disc-back" aria-hidden="true"></div>
+            <button class="orbit-core" id="orbit-open" type="button" title="查看全部糖果原始回答" aria-label="总体不降智率，查看全部原始回答">
+              <span class="orbit-caption">OVERALL PASS</span>
+              <span class="orbit-label">总体不降智率</span>
+              <strong id="overall-rate">—</strong><small id="overall-detail">等待有效回答</small>
+              <span class="orbit-action" aria-hidden="true">原始回答 ↗</span>
+            </button>
+            <span class="satellite satellite-one" aria-hidden="true">API</span><span class="satellite satellite-two" aria-hidden="true">21</span><span class="satellite satellite-three" aria-hidden="true">SVG</span>
+          </div>
           <div class="protocol-bottom"><span class="dot archive-dot"></span><span id="protocol-state">历史样本 · 实时探测待接入</span></div>
+          <button id="motion-toggle" class="motion-toggle" type="button" title="暂停动效" aria-label="暂停动效" aria-pressed="false"><img src="assets/pause.svg" width="16" height="16" alt=""></button>
         </aside>
       </section>
 

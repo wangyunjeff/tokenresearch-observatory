@@ -111,6 +111,7 @@
     const activeCandy = L.activeCandyRows(state.candy);
     const counts = L.summarize(activeCandy);
     $('protocol-state').textContent = archived ? '历史样本 · 实时探测待接入' : stale ? '记录已过期 · 等待新数据' : '已接入公开监测数据';
+    document.querySelector('.protocol-bottom .dot').className=`dot ${archived||stale?'archive-dot':'live-dot'}`;
     $('data-message').textContent = archived
       ? `已导入 ${state.archive_date || '2026-09-14'} 测试档案：${state.candy.length} 条糖果回答、${state.pelicans.length} 份鹈鹕 HTML。当前不是实时监测；服务端探测接入后每 10 分钟更新。`
       : `${stale ? '数据已过期 · ' : ''}更新于 ${fmt(state.as_of)} · 北京时间`;
@@ -139,6 +140,7 @@
     $('filter-unreviewed').textContent = state.pelicans.filter(x=>x.review_status==='unreviewed').length;
     $('filter-flagged').textContent = state.pelicans.filter(x=>x.review_status==='flagged').length;
     renderGallery();
+    window.dispatchEvent(new CustomEvent('observatory:render',{detail:{rate:counts.rate}}));
   }
   function renderSpectrum(slots,archived) {
     const grid = $('spectrum'), axis = $('hour-axis');
@@ -334,6 +336,7 @@
   $('copy-prompt').addEventListener('click',copyPrompt);
   $('refresh').addEventListener('click',()=>refresh(true));
   $('all-answers').addEventListener('click',()=>{if(state)openAnswers(state.candy,`${state.mode==='archive'?'历史档案':'接口记录'} / ${state.candy.length} 条原始回答`);});
+  $('orbit-open').addEventListener('click',()=>{$('all-answers').click();});
   $('view-animation').addEventListener('click',()=>{if(currentDrawing)showAnimation();});
   $('view-source').addEventListener('click',()=>{$('viewer-stage').replaceChildren();$('viewer-stage').hidden=true;$('viewer-source').hidden=false;$('view-animation').setAttribute('aria-pressed','false');$('view-source').setAttribute('aria-pressed','true');});
   $('prev-drawing').addEventListener('click',()=>moveDrawing(-1));$('next-drawing').addEventListener('click',()=>moveDrawing(1));
