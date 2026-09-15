@@ -18,13 +18,21 @@
   }
   function activeCandyRows(rows) {
     const superseded = new Set();
+    const latestRecovery = new Map();
     rows.forEach(row => {
       if (row?.source !== 'recovery_retest' || row?.status !== 'completed' || !Array.isArray(row.replaces)) return;
       row.replaces.forEach(id => {
-        if (typeof id === 'string' && id) superseded.add(id);
+        if (typeof id === 'string' && id) {
+          superseded.add(id);
+          latestRecovery.set(id, row.id);
+        }
       });
     });
-    return rows.filter(row => !superseded.has(row?.id));
+    return rows.filter(row => {
+      if (superseded.has(row?.id)) return false;
+      if (row?.source !== 'recovery_retest' || !Array.isArray(row.replaces) || !row.replaces.length) return true;
+      return row.status === 'completed' && row.replaces.every(id => latestRecovery.get(id) === row.id);
+    });
   }
   function displayTimestamp(row) {
     return row?.display_timestamp || row?.timestamp;

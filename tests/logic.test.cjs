@@ -33,6 +33,9 @@ slots=bucketize([{timestamp:'invalid',status:'completed',final_answer:21},{times
 const originalError={id:'server-502',timestamp:'2026-09-14T06:10:00Z',status:'error'};
 const recovery={id:'retest-1',timestamp:'2026-09-15T02:00:00Z',display_timestamp:'2026-09-14T06:10:00Z',source:'recovery_retest',replaces:['server-502'],status:'completed',final_answer:21};
 assert.deepEqual(activeCandyRows([originalError,recovery]).map(row=>row.id),['retest-1']);
+const failedRecovery={id:'retest-failed',timestamp:'2026-09-15T01:59:00Z',display_timestamp:'2026-09-14T06:10:00Z',source:'recovery_retest',replaces:['server-502'],status:'error'};
+const laterRecovery={id:'retest-later',timestamp:'2026-09-15T02:01:00Z',display_timestamp:'2026-09-14T06:10:00Z',source:'recovery_retest',replaces:['server-502'],status:'completed',final_answer:21};
+assert.deepEqual(activeCandyRows([originalError,failedRecovery,laterRecovery]).map(row=>row.id),['retest-later']);
 slots=bucketize([originalError,recovery],ref);
 const recoveredSlot=slots.find(slot=>slot.rows.some(row=>row.id==='retest-1'));
 assert.equal(recoveredSlot.rows.length,2);assert.equal(recoveredSlot.status,'ok');assert.equal(recoveredSlot.counts.error,0);assert.equal(recoveredSlot.counts.ok,1);
