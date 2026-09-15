@@ -188,16 +188,22 @@
     });
     flush(); $('latency-area').setAttribute('d',area); $('latency-line').setAttribute('d',line);
   }
-  function frameDocument(html) {
-    if (frameCache.has(html)) return frameCache.get(html);
+  function frameDocument(html,thumbnail=false) {
+    const cacheKey=(thumbnail?'thumb:':'full:')+html;
+    if (frameCache.has(cacheKey)) return frameCache.get(cacheKey);
     const doc = new DOMParser().parseFromString(html,'text/html');
     doc.querySelectorAll('base,iframe,object,embed,form,script[src],link,meta[http-equiv="refresh" i]').forEach(node=>node.remove());
     const csp = doc.createElement('meta');
     csp.httpEquiv='Content-Security-Policy';
     csp.content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data: blob:; font-src data:; connect-src 'none'; frame-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'";
     doc.head.prepend(csp);
+    if(thumbnail){
+      const script=doc.createElement('script');
+      script.textContent=`(${window.OBS_THUMBNAIL_RUNTIME.toString()})();`;
+      csp.after(script);
+    }
     const result='<!doctype html>\n'+doc.documentElement.outerHTML;
-    frameCache.set(html,result); return result;
+    frameCache.set(cacheKey,result); return result;
   }
   function makeFrame(row,thumbnail) {
     const frame = document.createElement('iframe');
@@ -205,7 +211,8 @@
     frame.referrerPolicy='no-referrer';
     frame.title=`原始鹈鹕动画 ${row.id}`;
     if (thumbnail) { frame.tabIndex=-1; frame.setAttribute('aria-hidden','true'); }
-    frame.srcdoc=frameDocument(row.html);
+    frame.srcdoc=frameDocument(row.html,thumbnail);
+    if(thumbnail)frame.addEventListener('load',()=>syncThumb(frame.closest('.thumb-stage')));
     return frame;
   }
   function scaleThumb(stage) {
@@ -217,6 +224,12 @@
     if (!row || !row.html) return;
     stage.replaceChildren(makeFrame(row,true)); scaleThumb(stage);
   }
+  function syncThumb(stage){
+    if(!stage)return;
+    const play=stage.dataset.hover==='true'&&!document.hidden&&!document.querySelector('dialog[open]');
+    stage.querySelector('iframe')?.contentWindow?.postMessage({type:'observatory-thumbnail-play',play},'*');
+  }
+  function syncThumbnails(){document.querySelectorAll('.thumb-stage').forEach(syncThumb);}
   function renderGallery() {
     viewObserver?.disconnect(); sizeObserver?.disconnect();
     const gallery=$('gallery'); gallery.replaceChildren();
@@ -231,6 +244,8 @@
       const button=el('button','thumb-button'); button.type='button'; button.setAttribute('aria-label',`放大查看${title}的原始 HTML 动画`);
       const stage=el('div','thumb-stage'); stage.dataset.id=row.id; stage.append(el('span','thumb-placeholder',String(row.trial).padStart(2,'0')));
       button.append(stage,el('span','thumb-hover','查看原始动画 ↗'));
+      button.addEventListener('pointerenter',event=>{if(event.pointerType==='mouse'){stage.dataset.hover='true';syncThumb(stage);}});
+      button.addEventListener('pointerleave',()=>{stage.dataset.hover='false';syncThumb(stage);});
       button.addEventListener('click',()=>openDrawing(row.id));
       const meta=el('div','drawing-meta');
       meta.append(el('span','',row.timestamp?fmt(row.timestamp):row.date||'未提供日期'),el('span','',row.elapsed_seconds===null?'耗时未提供':`${row.elapsed_seconds.toFixed(1)} 秒`));
@@ -306,6 +321,7 @@
   }
   document.querySelectorAll('[data-prompt]').forEach(b=>b.addEventListener('click',()=>openPrompt(b.dataset.prompt)));
   document.querySelectorAll('dialog').forEach(dialog=>{
+    new MutationObserver(syncThumbnails).observe(dialog,{attributes:true,attributeFilter:['open']});
     dialog.querySelector('.close-dialog').addEventListener('click',()=>dialog.close());
     dialog.addEventListener('click',e=>{if(e.target===dialog){const r=dialog.getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)dialog.close();}});
   });
@@ -326,6 +342,6 @@
   window.addEventListener('resize',()=>document.querySelectorAll('.thumb-stage').forEach(scaleThumb));
   refresh();
   if(cfg.feedUrl)refreshTimer=setInterval(()=>{if(!document.hidden)refresh();},Math.max(L.STEP,cfg.refreshMs||L.STEP));
-  document.addEventListener('visibilitychange',()=>{if(!document.hidden&&cfg.feedUrl)refresh();});
+  document.addEventListener('visibilitychange',()=>{syncThumbnails();if(!document.hidden&&cfg.feedUrl)refresh();});
   window.addEventListener('pagehide',()=>{clearInterval(refreshTimer);viewObserver?.disconnect();sizeObserver?.disconnect();viewerObserver.disconnect();});
 })();
