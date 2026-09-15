@@ -44,6 +44,12 @@ body{background:var(--paper)}
 .slot:hover,.slot:focus-visible{transform:scaleY(1.4);z-index:2;box-shadow:0 3px 8px #183b321f}
 .slot.ok{background:#27614d}.slot.wrong{background:#ed8774}.slot.error{background:#f3ca56}
 .drawing-card{transition:transform .25s}
+.gallery{grid-template-columns:repeat(8,minmax(0,1fr));gap:18px 10px;padding-bottom:18px}
+.drawing-card-head{font-size:10px}
+.drawing-meta{font-size:9px;gap:2px 5px}
+@media(max-width:1100px){.gallery{grid-template-columns:repeat(6,minmax(0,1fr))}}
+@media(max-width:760px){.gallery{grid-template-columns:repeat(3,minmax(0,1fr));gap:16px 9px}.drawing-card-head{flex-wrap:wrap;gap:3px}.drawing-title{flex:1}.drawing-meta{font-size:9px}}
+@media(max-width:359px){.gallery{grid-template-columns:repeat(2,minmax(0,1fr))}}
 .drawing-card:hover{transform:translateY(-4px)}
 .thumb-button{border-radius:6px;border-color:#c7d5cb;transition:box-shadow .25s,border-color .25s}
 .thumb-button:hover{border-color:var(--forest);box-shadow:0 8px 18px #173e2e18}

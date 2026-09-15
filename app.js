@@ -11,8 +11,6 @@
   const PROMPTS = {candy: CANDY_INTRO + '\n\n' + CANDY_TABLE + '\n\n' + CANDY_RULES, pelican:'创建一个 HTML，内容是 SVG 绘制一个鹈鹕骑自行车的 2D 动画,不要使用任何技能'};
   let state = null, archive = null, filter = 'all', search = '', currentPrompt = '', currentDrawing = null;
   let visibleDrawings = [], refreshTimer = null, toastTimer = null;
-  const compactGallery = window.matchMedia('(max-width:760px)');
-  let galleryPage = 0;
   const frameCache = new Map();
   const viewObserver = 'IntersectionObserver' in window ? new IntersectionObserver(entries => {
     entries.forEach(entry => {
@@ -224,14 +222,7 @@
     const gallery=$('gallery'); gallery.replaceChildren();
     visibleDrawings=state.pelicans.filter(row=>(filter==='all'||row.review_status===filter)&&(`${row.id} ${String(row.trial).padStart(2,'0')} ${row.account_label} ${row.model}`).toLowerCase().includes(search));
     $('gallery-empty').hidden=visibleDrawings.length>0;
-    const pageSize=compactGallery.matches?6:12;
-    const pages=Math.ceil(visibleDrawings.length/pageSize);
-    galleryPage=Math.min(galleryPage,Math.max(0,pages-1));
-    $('gallery-pagination').hidden=pages===0;
-    $('gallery-page').textContent=`${galleryPage+1} / ${pages} 页 · 共 ${visibleDrawings.length} 份`;
-    $('gallery-prev').disabled=galleryPage===0;
-    $('gallery-next').disabled=galleryPage>=pages-1;
-    visibleDrawings.slice(galleryPage*pageSize,(galleryPage+1)*pageSize).forEach(row=>{
+    visibleDrawings.forEach(row=>{
       const card=el('article','drawing-card');
       const head=el('div','drawing-card-head');
       const title=row.account_label||`原始样本 / ${String(row.trial).padStart(2,'0')}`;
@@ -320,18 +311,9 @@
   });
   $('viewer-dialog').addEventListener('close',()=>{$('viewer-stage').replaceChildren();currentDrawing=null;});
   document.querySelectorAll('[data-filter]').forEach(b=>b.addEventListener('click',()=>{
-    filter=b.dataset.filter;galleryPage=0;document.querySelectorAll('[data-filter]').forEach(x=>{x.classList.toggle('active',x===b);x.setAttribute('aria-pressed',String(x===b));});if(state)renderGallery();
+    filter=b.dataset.filter;document.querySelectorAll('[data-filter]').forEach(x=>{x.classList.toggle('active',x===b);x.setAttribute('aria-pressed',String(x===b));});if(state)renderGallery();
   }));
-  $('gallery-search').addEventListener('input',e=>{search=e.target.value.trim().toLowerCase();galleryPage=0;if(state)renderGallery();});
-  function changePage(delta) {
-    galleryPage+=delta;renderGallery();
-    $('pelican').scrollIntoView({block:'start'});
-    const control=$(delta>0?'gallery-next':'gallery-prev');
-    (control.disabled?$(delta>0?'gallery-prev':'gallery-next'):control).focus({preventScroll:true});
-  }
-  $('gallery-prev').addEventListener('click',()=>changePage(-1));
-  $('gallery-next').addEventListener('click',()=>changePage(1));
-  compactGallery.addEventListener('change',()=>{galleryPage=0;if(state)renderGallery();});
+  $('gallery-search').addEventListener('input',e=>{search=e.target.value.trim().toLowerCase();if(state)renderGallery();});
   document.querySelector('a[href="#questions"]').addEventListener('click',()=>{$('questions').open=true;});
   $('copy-prompt').addEventListener('click',copyPrompt);
   $('refresh').addEventListener('click',()=>refresh(true));
