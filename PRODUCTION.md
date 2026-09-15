@@ -71,6 +71,16 @@ The gallery exposes all saved real pelican probe outputs in newest-first order, 
 
 The implementation deliberately does not backfill fabricated 5-hour monitoring data. Real history accumulates from the configured worker; existing historical data remains available in the repository archive fallback.
 
+## Recovery retests
+
+When a confirmed server-side incident invalidates scheduled candy probes, retain the original error records and run real recovery retests against an explicit interval while the monitor service is stopped:
+
+```bash
+node scripts/retest-candy-slots.mjs --from=2026-09-15T01:00:00Z --to=2026-09-15T03:00:00Z
+```
+
+The script only selects unretested `HTTP 502` errors in that interval. A completed retest keeps its actual request time, records the original slot as `display_timestamp`, and links the original error ID. It must not be used to create synthetic historical measurements.
+
 ## Run
 
 ```bash

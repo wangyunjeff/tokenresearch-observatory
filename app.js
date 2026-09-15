@@ -60,7 +60,11 @@
       status:['completed','error','running','none'].includes(row.status) ? row.status : 'error',
       final_answer:row.final_answer ?? null, answer:String(row.answer || '').slice(0,100000),
       elapsed_seconds:typeof row.elapsed_seconds === 'number' && Number.isFinite(row.elapsed_seconds) && row.elapsed_seconds >= 0 ? row.elapsed_seconds : null,
-      model:String(row.model || '未提供模型'), reasoning_effort:String(row.reasoning_effort || '未提供'), http_status:row.http_status
+      model:String(row.model || '未提供模型'), reasoning_effort:String(row.reasoning_effort || '未提供'), http_status:row.http_status,
+      display_timestamp:Number.isFinite(Date.parse(row.display_timestamp)) ? row.display_timestamp : null,
+      source:row.source === 'recovery_retest' ? 'recovery_retest' : 'scheduled',
+      recovery_reason:row.source === 'recovery_retest' ? String(row.recovery_reason || 'server_incident') : '',
+      replaces:Array.isArray(row.replaces) ? row.replaces.filter(value => typeof value === 'string').slice(0,32) : []
     }));
     const pelicans = data.pelicans.slice(0,Math.min(cfg.maxDrawings || 200,200)).map((row,i) => ({
       id:String(row.id || `pelican-${i+1}`), trial:Number(row.trial || i+1), account_label:String(row.account_label || ''),
@@ -102,7 +106,8 @@
     const archived = state.mode === 'archive';
     const stale = !archived && Date.now() - Date.parse(state.as_of) > 2 * (cfg.refreshMs || L.STEP);
     const latest = state.candy.filter(r => r.timestamp).slice().sort((a,b) => Date.parse(b.timestamp)-Date.parse(a.timestamp))[0];
-    const counts = L.summarize(state.candy);
+    const activeCandy = L.activeCandyRows(state.candy);
+    const counts = L.summarize(activeCandy);
     $('protocol-state').textContent = archived ? '历史样本 · 实时探测待接入' : stale ? '记录已过期 · 等待新数据' : '已接入公开监测数据';
     $('data-message').textContent = archived
       ? `已导入 ${state.archive_date || '2026-09-14'} 测试档案：${state.candy.length} 条糖果回答、${state.pelicans.length} 份鹈鹕 HTML。当前不是实时监测；服务端探测接入后每 10 分钟更新。`
@@ -111,7 +116,7 @@
     // Live feeds may contain older records: the summary must use the same visible window.
     const reference = archived ? state.as_of : new Date().toISOString();
     const slots = L.bucketize(state.candy,reference);
-    const windowRows = slots.flatMap(slot => slot.rows);
+    const windowRows = slots.flatMap(slot => slot.activeRows);
     const displayedCounts = archived ? counts : L.summarize(windowRows);
     $('pass-rate').textContent = displayedCounts.rate === null ? '—' : `${(displayedCounts.rate*100).toFixed(displayedCounts.rate === 1 ? 0 : 1)}%`;
     $('pass-count').textContent = `${displayedCounts.ok} / ${displayedCounts.valid}`;
@@ -150,13 +155,14 @@
       grid.append(col); axis.append(el('span','',hour(slots[i*6].time)));
     }
     const occupied = slots.filter(x=>x.rows.length).length;
-    const total = slots.reduce((n,x)=>n+x.rows.length,0);
-    const counts = L.summarize(slots.flatMap(x=>x.rows));
+    const total = slots.reduce((n,x)=>n+x.activeRows.length,0);
+    const rawTotal = slots.reduce((n,x)=>n+x.rows.length,0);
+    const counts = L.summarize(slots.flatMap(x=>x.activeRows));
     const mixedSlots = slots.filter(x=>x.status==='mixed').length;
     $('spectrum-summary').textContent = `${total} 条记录 · ${counts.wrong} 未通过 · ${counts.error} 请求失败${mixedSlots ? ` · ${mixedSlots} 个混合时段` : ''}`;
     $('spectrum-note').textContent = archived
       ? `档案中的 ${total} 条记录集中在 ${occupied} 个 10 分钟时段；未记录的时间不补造数据。每列从上到下对应 00、10、20、30、40、50 分，浅灰格晚于档案参考时点。`
-      : '每列从上到下对应 00、10、20、30、40、50 分。同一格多条结果合并展示；若同时出现通过和未通过，会标为混合结果，点击查看明细。空格不代表通过。';
+      : '每列从上到下对应 00、10、20、30、40、50 分。同一格多条结果合并展示；点击可查看每条回答。空格不代表通过。';
   }
   function renderLatency(rows) {
     const sorted = rows.slice().sort((a,b)=>Date.parse(a.timestamp)-Date.parse(b.timestamp));

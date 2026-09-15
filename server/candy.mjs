@@ -1,9 +1,19 @@
 import { CANDY_PROMPT, CANDY_PROMPT_VERSION } from './prompts.mjs';
 import { extractCandyFinalAnswer, extractResponsesText, gradeCandy, joinResponsesUrl, makeId, readResponsesBody, sanitizePublicError } from './lib.mjs';
 
-export async function runCandyProbe(config, store, fetchImpl = fetch) {
+export async function runCandyProbe(config, store, options = {}, fetchImpl = fetch) {
+  if (typeof options === 'function') {
+    fetchImpl = options;
+    options = {};
+  }
   const started = Date.now();
   const id = makeId('candy', started);
+  let displayTimestamp = null;
+  if (options.displayTimestamp) {
+    const displayMs = Date.parse(options.displayTimestamp);
+    if (!Number.isFinite(displayMs)) throw new Error('Invalid recovery display timestamp');
+    displayTimestamp = new Date(displayMs).toISOString();
+  }
   const record = {
     id,
     timestamp:new Date(started).toISOString(),
@@ -17,6 +27,12 @@ export async function runCandyProbe(config, store, fetchImpl = fetch) {
     answer_format:'json',
     http_status:null
   };
+  if (displayTimestamp) {
+    record.display_timestamp = displayTimestamp;
+    record.source = 'recovery_retest';
+    record.recovery_reason = options.recoveryReason || 'server_incident';
+    record.replaces = [...new Set((options.replaces || []).filter(value => typeof value === 'string' && value))];
+  }
   store.state.candy.push(record);
   await store.save();
 

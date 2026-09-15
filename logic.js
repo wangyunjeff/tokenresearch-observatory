@@ -16,6 +16,19 @@
     totals.rate = totals.valid ? totals.ok / totals.valid : null;
     return totals;
   }
+  function activeCandyRows(rows) {
+    const superseded = new Set();
+    rows.forEach(row => {
+      if (row?.source !== 'recovery_retest' || row?.status !== 'completed' || !Array.isArray(row.replaces)) return;
+      row.replaces.forEach(id => {
+        if (typeof id === 'string' && id) superseded.add(id);
+      });
+    });
+    return rows.filter(row => !superseded.has(row?.id));
+  }
+  function displayTimestamp(row) {
+    return row?.display_timestamp || row?.timestamp;
+  }
   function bucketize(rows, reference) {
     const ref = new Date(reference).getTime();
     if (!Number.isFinite(ref)) throw new Error('Invalid reference time');
@@ -23,11 +36,12 @@
     const start = end - 24 * HOUR;
     const slots = Array.from({length: 144}, (_, i) => ({time: start + i * STEP, rows: [], status: 'none', future: start + i * STEP > ref}));
     rows.forEach(row => {
-      const t = Date.parse(row.timestamp);
+      const t = Date.parse(displayTimestamp(row));
       if (Number.isFinite(t) && t >= start && t < end && t <= ref) slots[Math.floor((t - start) / STEP)].rows.push(row);
     });
     slots.forEach(slot => {
-      const t = summarize(slot.rows);
+      slot.activeRows = activeCandyRows(slot.rows);
+      const t = summarize(slot.activeRows);
       // A slot can contain more than one probe. Expose pass/fail conflicts so
       // an older failure cannot hide a passing answer.
       slot.status = t.ok && t.wrong ? 'mixed' : t.wrong ? 'wrong' : t.error ? 'error' : t.running ? 'running' : t.ok ? 'ok' : 'none';
@@ -41,7 +55,7 @@
     const i = Math.floor(sorted.length / 2);
     return sorted.length % 2 ? sorted[i] : (sorted[i-1] + sorted[i]) / 2;
   }
-  const api = {STEP, gradeCandy, summarize, bucketize, median};
+  const api = {STEP, gradeCandy, summarize, activeCandyRows, displayTimestamp, bucketize, median};
   root.ObservatoryLogic = Object.freeze(api);
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
 })(globalThis);
