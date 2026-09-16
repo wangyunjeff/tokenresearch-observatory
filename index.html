@@ -19,6 +19,8 @@
   <script src="motion.js?v=orbit-20260915" defer></script>
   <script src="thumbnail.js?v=hover-20260915" defer></script>
   <script src="app.js?v=hover-20260915" defer></script>
+  <link rel="stylesheet" href="visits.css?v=1">
+  <script src="visits.js?v=1" defer></script>
 </head>
 <body>
   <a class="skip-link" href="#main">跳到主要内容</a>
@@ -29,6 +31,12 @@
       <a class="relay-link" href="https://tokenresearch.com.cn/" target="_blank" rel="noopener noreferrer">进入中转站 <span aria-hidden="true">↗</span></a>
     </header>
     <main id="main">
+      <aside class="visit-strip" aria-label="访问统计">
+        <span class="visit-heading"><span class="signal-dot" aria-hidden="true"></span>观测足迹</span>
+        <span class="visit-metric">累计访问 <strong id="visit-views">—</strong><small>次</small></span>
+        <span class="visit-metric">累计访客 <strong id="visit-people">—</strong><small>位</small></span>
+        <span class="visit-note" id="visit-note">含初始基数 1,000 · 访客按浏览器去重</span>
+      </aside>
       <section class="hero" aria-labelledby="page-title">
         <div class="hero-copy">
           <p class="eyebrow"><span class="signal-dot" aria-hidden="true"></span> TOKEN RESEARCH / OBSERVATORY</p>

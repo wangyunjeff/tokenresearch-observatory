@@ -6,6 +6,7 @@ import { JsonStore } from './store.mjs';
 import { envBool, nextBoundaryMs, positiveInt } from './lib.mjs';
 import { runCandyProbe } from './candy.mjs';
 import { runPelicanProbe } from './pelican.mjs';
+import { VisitCounter } from './visits.mjs';
 
 const here=path.dirname(fileURLToPath(import.meta.url));
 const root=path.resolve(here,'..');
@@ -22,6 +23,8 @@ config.pelicanEnabled=config.pelicanExecMode==='http' ? Boolean(config.codexExec
 
 const store=new JsonStore(config.stateFile,{candy:config.candyHistoryLimit,pelicans:config.pelicanHistoryLimit});
 await store.load();
+const visits=new VisitCounter(path.join(path.dirname(config.stateFile),'visits.json'));
+await visits.load();
 let candyBusy=false,pelicanBusy=false;
 async function candyTick(){if(!config.candyEnabled||candyBusy)return;candyBusy=true;try{await runCandyProbe(config,store);}finally{candyBusy=false;}}
 async function pelicanTick(){if(!config.pelicanEnabled||pelicanBusy)return;pelicanBusy=true;try{await runPelicanProbe(config,store);}finally{pelicanBusy=false;}}
@@ -54,6 +57,18 @@ async function serveStatic(req,res,url){
 const server=http.createServer(async(req,res)=>{
   const base=config.publicOrigin||`http://${req.headers.host||'localhost'}`;
   const url=new URL(req.url||'/',base);
+  if(url.pathname==='/api/visits'){
+    if(req.method==='GET')return send(res,200,JSON.stringify(visits.summary()),'application/json; charset=utf-8',{'cache-control':'no-store'});
+    if(req.method!=='POST')return send(res,405,'Method not allowed');
+    const origin=req.headers.origin;
+    if(!origin||origin!==new URL(base).origin)return send(res,403,'Forbidden');
+    try{
+      const result=await visits.record(req.headers.cookie);
+      const headers={'cache-control':'no-store'};
+      if(result.cookie)headers['set-cookie']=`obs_visitor=${result.cookie}; Path=/; HttpOnly; SameSite=Lax; Max-Age=31536000${origin.startsWith('https:')?'; Secure':''}`;
+      return send(res,200,JSON.stringify(result.stats),'application/json; charset=utf-8',headers);
+    }catch{return send(res,503,'Counter unavailable');}
+  }
   if(req.method!=='GET'&&req.method!=='HEAD')return send(res,405,'Method not allowed');
   if(url.pathname==='/api/status')return send(res,200,JSON.stringify(publicStatus()),'application/json; charset=utf-8',{'cache-control':'no-store'});
   if(url.pathname==='/healthz')return send(res,200,JSON.stringify({ok:true,candy_enabled:config.candyEnabled,pelican_enabled:config.pelicanEnabled,candy_busy:candyBusy,pelican_busy:pelicanBusy,last_candy_at:store.state.health?.last_candy_at||null,last_candy_status:store.state.health?.last_candy_status||null,last_pelican_at:store.state.health?.last_pelican_at||null,last_pelican_status:store.state.health?.last_pelican_status||null}),'application/json; charset=utf-8',{'cache-control':'no-store'});
