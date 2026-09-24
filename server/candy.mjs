@@ -22,6 +22,7 @@ export async function runCandyProbe(config, store, options = {}, fetchImpl = fet
     answer:'',
     elapsed_seconds:null,
     model:config.publicModelLabel,
+    model_id:config.candyModel,
     reasoning_effort:config.candyReasoningEffort || 'default',
     prompt_version:CANDY_PROMPT_VERSION,
     answer_format:'json',

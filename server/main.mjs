@@ -7,6 +7,7 @@ import { envBool, nextBoundaryMs, positiveInt } from './lib.mjs';
 import { runCandyProbe } from './candy.mjs';
 import { runPelicanProbe } from './pelican.mjs';
 import { VisitCounter } from './visits.mjs';
+import { runAttribution,runLimited,method } from './attribution.mjs';
 
 const here=path.dirname(fileURLToPath(import.meta.url));
 const root=path.resolve(here,'..');
@@ -20,18 +21,24 @@ const config={
 };
 config.candyEnabled=Boolean(config.openaiBaseUrl&&config.openaiApiKey&&config.candyModel);
 config.pelicanEnabled=config.pelicanExecMode==='http' ? Boolean(config.codexExecUrl) : Boolean(config.codexExecCommandJson);
+const models=[...new Set((env.PROBE_MODELS||config.candyModel).split(',').map(x=>x.trim()).filter(Boolean))];
+config.attributionEnabled=envBool(env.ATTRIBUTION_ENABLED,false)&&config.candyEnabled;
+config.attributionTimeoutMs=positiveInt(env.ATTRIBUTION_TIMEOUT_MS,90000);
 
 const store=new JsonStore(config.stateFile,{candy:config.candyHistoryLimit,pelicans:config.pelicanHistoryLimit});
 await store.load();
 const visits=new VisitCounter(path.join(path.dirname(config.stateFile),'visits.json'));
 await visits.load();
-let candyBusy=false,pelicanBusy=false;
-async function candyTick(){if(!config.candyEnabled||candyBusy)return;candyBusy=true;try{await runCandyProbe(config,store);}finally{candyBusy=false;}}
+let candyBusy=false,pelicanBusy=false,attributionBusy=false;
+async function candyTick(){if(!config.candyEnabled||candyBusy)return;candyBusy=true;try{await runLimited(models,model=>runCandyProbe({...config,candyModel:model,publicModelLabel:model},store));}finally{candyBusy=false;}}
+async function attributionTick(){if(!config.attributionEnabled||attributionBusy)return;attributionBusy=true;try{await runLimited(models,model=>runAttribution(config,store,model));}finally{attributionBusy=false;}}
 async function pelicanTick(){if(!config.pelicanEnabled||pelicanBusy)return;pelicanBusy=true;try{await runPelicanProbe(config,store);}finally{pelicanBusy=false;}}
 function scheduleEvery(minutes,fn){
   const arm=()=>{const delay=Math.max(1000,nextBoundaryMs(Date.now(),minutes)-Date.now());setTimeout(async()=>{try{await fn();}catch(e){console.error(e);}arm();},delay).unref();}; arm();
 }
 scheduleEvery(10,candyTick); scheduleEvery(30,pelicanTick);
+scheduleEvery(30,attributionTick);
+if(config.runOnStart&&config.attributionEnabled)setTimeout(attributionTick,10000).unref();
 if(config.runOnStart){setTimeout(candyTick,1000).unref();setTimeout(pelicanTick,3000).unref();}
 
 function latestTimestamp(){
@@ -40,7 +47,7 @@ function latestTimestamp(){
 }
 function publicStatus(){
   const livePelicans=(store.state.pelicans||[]).filter(x=>x?.html).slice().reverse().map(x=>({...x,account_label:'实时探测',provenance:'live'}));
-  return {schema_version:1,mode:'live',as_of:latestTimestamp(),next_probe_at:new Date(nextBoundaryMs(Date.now(),10)).toISOString(),candy:store.state.candy||[],pelicans:livePelicans,monitor:{candy_minutes:10,pelican_minutes:30}};
+  return {schema_version:1,mode:'live',as_of:latestTimestamp(),next_probe_at:new Date(nextBoundaryMs(Date.now(),10)).toISOString(),models,candy:store.state.candy||[],pelicans:livePelicans,attribution:store.state.attribution||[],attribution_method:method,monitor:{candy_minutes:10,pelican_minutes:30,attribution_minutes:30,attribution_enabled:config.attributionEnabled,attribution_busy:attributionBusy,next_attribution_at:new Date(nextBoundaryMs(Date.now(),30)).toISOString()}};
 }
 
 const mime={'.html':'text/html; charset=utf-8','.js':'text/javascript; charset=utf-8','.css':'text/css; charset=utf-8','.json':'application/json; charset=utf-8','.part':'text/plain; charset=us-ascii','.png':'image/png','.svg':'image/svg+xml','.ico':'image/x-icon'};

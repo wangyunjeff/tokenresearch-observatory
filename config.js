@@ -10,7 +10,7 @@ window.OBS_CONFIG = Object.freeze({
 // Keep the static HTML usable as a fallback while reflecting the production cadence when this config is loaded.
 document.addEventListener('DOMContentLoaded', () => {
   const intro = document.querySelector('.intro');
-  if (intro) intro.innerHTML = '糖果推理 <strong>每 10 分钟</strong> · 鹈鹕动画 <strong>每 30 分钟</strong> · 公开测试记录';
+  if (intro) intro.innerHTML = '糖果推理 <strong>每 10 分钟</strong> · 模型归因 <strong>每 30 分钟</strong> · 鹈鹕仅 GPT 6 ASTRA';
   const rows = document.querySelectorAll('.protocol-row');
   if (rows[1]?.querySelector('b')) rows[1].querySelector('b').textContent = '每 30 分钟';
   const method = document.querySelectorAll('.method-grid article')[2]?.querySelector('p');

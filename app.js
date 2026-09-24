@@ -11,6 +11,8 @@
   const PROMPTS = {candy: CANDY_INTRO + '\n\n' + CANDY_TABLE + '\n\n' + CANDY_RULES, pelican:'创建一个 HTML，内容是 SVG 绘制一个鹈鹕骑自行车的 2D 动画,不要使用任何技能'};
   let state = null, archive = null, filter = 'all', search = '', currentPrompt = '', currentDrawing = null;
   let visibleDrawings = [], refreshTimer = null, toastTimer = null;
+  let selectedModel='gpt-6-astra';
+  const selectedCandy=()=>state.candy.filter(row=>row.model_id===selectedModel);
   const frameCache = new Map();
   const viewObserver = 'IntersectionObserver' in window ? new IntersectionObserver(entries => {
     entries.forEach(entry => {
@@ -61,6 +63,7 @@
       final_answer:row.final_answer ?? null, answer:String(row.answer || '').slice(0,100000),
       elapsed_seconds:typeof row.elapsed_seconds === 'number' && Number.isFinite(row.elapsed_seconds) && row.elapsed_seconds >= 0 ? row.elapsed_seconds : null,
       model:String(row.model || '未提供模型'), reasoning_effort:String(row.reasoning_effort || '未提供'), http_status:row.http_status,
+      model_id:String(row.model_id||'gpt-6-astra'),
       display_timestamp:Number.isFinite(Date.parse(row.display_timestamp)) ? row.display_timestamp : null,
       source:row.source === 'recovery_retest' ? 'recovery_retest' : 'scheduled',
       recovery_reason:row.source === 'recovery_retest' ? String(row.recovery_reason || 'server_incident') : '',
@@ -105,8 +108,16 @@
     frameCache.clear();
     const archived = state.mode === 'archive';
     const stale = !archived && Date.now() - Date.parse(state.as_of) > 2 * (cfg.refreshMs || L.STEP);
-    const latest = state.candy.filter(r => r.timestamp).slice().sort((a,b) => Date.parse(b.timestamp)-Date.parse(a.timestamp))[0];
-    const activeCandy = L.activeCandyRows(state.candy);
+    const models=state.models?.length?state.models:['gpt-6-astra'];
+    if(!models.includes(selectedModel))selectedModel=models[0];
+    $('model-tabs').replaceChildren(...models.map(model=>{
+      const button=el('button',model===selectedModel?'active':'',model.replace('gpt-','GPT ').toUpperCase());
+      button.type='button';button.setAttribute('aria-pressed',String(model===selectedModel));
+      button.addEventListener('click',()=>{selectedModel=model;render();});return button;
+    }));
+    const candyRows=selectedCandy();
+    const latest = candyRows.filter(r => r.timestamp).slice().sort((a,b) => Date.parse(b.timestamp)-Date.parse(a.timestamp))[0];
+    const activeCandy = L.activeCandyRows(candyRows);
     const counts = L.summarize(activeCandy);
     $('protocol-state').textContent = archived ? '历史样本 · 实时探测待接入' : stale ? '记录已过期 · 等待新数据' : '已接入公开监测数据';
     document.querySelector('.protocol-bottom .dot').className=`dot ${archived||stale?'archive-dot':'live-dot'}`;
@@ -116,7 +127,7 @@
     $('rate-label').textContent = archived ? '样本回答通过率' : '窗口回答通过率';
     // Live feeds may contain older records: the summary must use the same visible window.
     const reference = archived ? state.as_of : new Date().toISOString();
-    const slots = L.bucketize(state.candy,reference);
+    const slots = L.bucketize(candyRows,reference);
     const windowRows = slots.flatMap(slot => slot.activeRows);
     const displayedCounts = archived ? counts : L.summarize(windowRows);
     $('pass-rate').textContent = displayedCounts.rate === null ? '—' : `${(displayedCounts.rate*100).toFixed(displayedCounts.rate === 1 ? 0 : 1)}%`;
@@ -124,11 +135,11 @@
     $('wrong-count').textContent = displayedCounts.wrong;
     $('error-count').textContent = displayedCounts.error;
     $('overall-rate').textContent = counts.rate === null ? '—' : `${(counts.rate*100).toFixed(counts.rate === 1 ? 0 : 1)}%`;
-    $('overall-detail').textContent = counts.valid ? `${counts.ok} / ${counts.valid} 通过 · 累计糖果回答` : '暂无有效回答';
+    $('overall-detail').textContent = counts.valid ? `${selectedModel} · ${counts.ok} / ${counts.valid} 通过` : `${selectedModel} · 暂无有效回答`;
     const next = !archived && !stale && Number.isFinite(Date.parse(state.next_probe_at)) && Date.parse(state.next_probe_at) > Date.now() ? fmt(state.next_probe_at) : archived ? '待接入' : '等待新记录';
     $('spectrum-time').textContent = `最近记录 ${latest ? fmt(latest.timestamp) : '—'} · 下次探测 ${next}`;
     renderSpectrum(slots,archived);
-    renderLatency(archived ? state.candy : windowRows);
+    renderLatency(archived ? candyRows : windowRows);
     $('gallery-source').replaceChildren(el('span',`dot ${archived || stale ? 'archive-dot' : 'live-dot'}`),document.createTextNode(archived ? '已导入原始样本' : stale ? '旧记录 · 等待更新' : '来自公开监测接口'));
     $('gallery-summary').textContent = `共 ${state.pelicans.length} 份 · ${state.pelicans.filter(x=>x.review_status==='unreviewed').length} 份待复核`;
     $('gallery-note').textContent = archived
@@ -138,7 +149,7 @@
     $('filter-unreviewed').textContent = state.pelicans.filter(x=>x.review_status==='unreviewed').length;
     $('filter-flagged').textContent = state.pelicans.filter(x=>x.review_status==='flagged').length;
     renderGallery();
-    window.dispatchEvent(new CustomEvent('observatory:render',{detail:{rate:counts.rate}}));
+    window.dispatchEvent(new CustomEvent('observatory:render',{detail:{rate:counts.rate,data:state,model:selectedModel}}));
   }
   function renderSpectrum(slots,archived) {
     const grid = $('spectrum'), axis = $('hour-axis');
@@ -333,7 +344,7 @@
   document.querySelector('a[href="#questions"]').addEventListener('click',()=>{$('questions').open=true;});
   $('copy-prompt').addEventListener('click',copyPrompt);
   $('refresh').addEventListener('click',()=>refresh(true));
-  $('all-answers').addEventListener('click',()=>{if(state)openAnswers(state.candy,`${state.mode==='archive'?'历史档案':'接口记录'} / ${state.candy.length} 条原始回答`);});
+  $('all-answers').addEventListener('click',()=>{if(state)openAnswers(selectedCandy(),`${selectedModel} / ${selectedCandy().length} 条原始回答`);});
   $('orbit-open').addEventListener('click',()=>{$('all-answers').click();});
   $('view-animation').addEventListener('click',()=>{if(currentDrawing)showAnimation();});
   $('view-source').addEventListener('click',()=>{$('viewer-stage').replaceChildren();$('viewer-stage').hidden=true;$('viewer-source').hidden=false;$('view-animation').setAttribute('aria-pressed','false');$('view-source').setAttribute('aria-pressed','true');});

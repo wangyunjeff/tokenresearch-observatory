@@ -1,0 +1,10 @@
+.model-tabs{display:flex;gap:4px;flex-wrap:wrap;padding:14px 0;border-bottom:1px solid var(--line)}
+.model-tabs button{border:0;border-bottom:2px solid transparent;background:transparent;color:var(--muted);padding:9px 14px;font:12px var(--mono)}
+.model-tabs button.active{color:var(--forest);border-color:var(--forest);background:#e7eee9}
+.attribution-scroll{overflow-x:auto}.attribution-table{border-collapse:collapse;width:100%;min-width:780px;font-size:12px;text-align:left}
+.attribution-table th{color:var(--muted);font-weight:500;font-size:11px}.attribution-table th,.attribution-table td{padding:12px 10px;border-bottom:1px solid var(--line)}
+.attribution-table th:first-child,.attribution-table td:first-child{padding-left:0}.attribution-table .selected{background:#eaf0ec}
+.attribution-caveat{font-size:12px;color:var(--muted);line-height:1.8}.probability-bar{display:flex;align-items:center;gap:12px;padding:7px 0;font-size:12px}.probability-bar span{width:170px;overflow-wrap:anywhere}.probability-bar progress{flex:1;min-width:20px;accent-color:var(--forest)}.probability-bar strong{width:60px;text-align:right;font:12px var(--mono)}
+.attribution-sample{white-space:pre-wrap;overflow-wrap:anywhere;font-size:12px;background:#edf1ee;padding:12px;max-height:280px;overflow:auto}
+.attribution-history{display:flex;gap:5px;flex-wrap:wrap;margin:12px 0}.attribution-history button{font-size:11px}
+@media(max-width:760px){.model-tabs button{padding:8px;font-size:10px}.probability-bar span{width:125px}}

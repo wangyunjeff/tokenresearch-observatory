@@ -5,7 +5,7 @@ export class JsonStore {
   constructor(file, limits = {}) {
     this.file = file;
     this.limits = {candy: limits.candy ?? 1000, pelicans: limits.pelicans ?? 100};
-    this.state = {schema_version:1, candy:[], pelicans:[], health:{}};
+    this.state = {schema_version:1, candy:[], pelicans:[], attribution:[], health:{}};
     this.writeChain = Promise.resolve();
   }
 
@@ -23,6 +23,7 @@ export class JsonStore {
   trim() {
     this.state.candy = (this.state.candy || []).slice(-this.limits.candy);
     this.state.pelicans = (this.state.pelicans || []).slice(-this.limits.pelicans);
+    this.state.attribution = (this.state.attribution || []).slice(-500);
   }
 
   async save() {

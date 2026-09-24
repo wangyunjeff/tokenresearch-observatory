@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "start": "node server/main.mjs",
-    "test": "node tests/server.test.mjs && node tests/integration.mjs && node tests/logic.test.cjs"
+    "test": "node tests/server.test.mjs && node tests/integration.mjs && node tests/logic.test.cjs && node tests/attribution.test.mjs && node tests/multi-model.test.mjs && node tests/visits.test.mjs"
   },
   "engines": {
     "node": ">=20"

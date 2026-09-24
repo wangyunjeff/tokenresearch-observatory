@@ -9,7 +9,7 @@
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%2317483c'/%3E%3Cpath d='M17 20h30M32 20v27' fill='none' stroke='%23f4c958' stroke-width='6'/%3E%3C/svg%3E">
   <link rel="stylesheet" href="styles.css?v=orbit-20260915">
   <link rel="stylesheet" href="motion.css?v=wall-20260915">
-  <script src="config.js?v=compact-20260915" defer></script>
+  <script src="config.js?v=multi-20260924" defer></script>
   <script src="logic.js" defer></script>
   <script src="data/archive.js" defer></script>
   <script src="data/archive-2.js" defer></script>
@@ -18,7 +18,9 @@
   <script src="vendor/gsap.min.js" defer></script>
   <script src="motion.js?v=orbit-20260915" defer></script>
   <script src="thumbnail.js?v=hover-20260915" defer></script>
-  <script src="app.js?v=hover-20260915" defer></script>
+  <link rel="stylesheet" href="attribution.css?v=20260924">
+  <script src="attribution.js?v=20260924" defer></script>
+  <script src="app.js?v=multi-20260924" defer></script>
   <link rel="stylesheet" href="visits.css?v=1">
   <script src="visits.js?v=2" defer></script>
 </head>
@@ -37,11 +39,12 @@
         <span class="visit-metric">累计访客 <strong id="visit-people">—</strong><small>位</small></span>
         <span class="visit-note" id="visit-note" role="status" hidden></span>
       </aside>
+      <div id="model-tabs" class="model-tabs" role="group" aria-label="选择测试模型"></div>
       <section class="hero" aria-labelledby="page-title">
         <div class="hero-copy">
           <p class="eyebrow"><span class="signal-dot" aria-hidden="true"></span> TOKEN RESEARCH / OBSERVATORY</p>
           <h1 id="page-title">ChatGPT 不降质分组<br><em>实时智力观测。</em></h1>
-          <p class="hero-product">逻辑推理与动画生成 · 两项独立测试</p>
+          <p class="hero-product">逻辑推理 · 模型归因 · 动画生成</p>
           <p class="intro">这里是 <strong>Token Research</strong> 为「ChatGPT 不降质分组」设立的公开观测台。以<strong>每 10 分钟一轮</strong>的节奏，通过糖果推理题与鹈鹕动画题两项测试，观察回答与生成质量。结果公开，直接查看，无需填写 API Key。</p>
           <div class="hero-index" aria-hidden="true"><span>01 / REASONING</span><span>02 / CREATION</span><span class="index-line"></span></div>
         </div>
@@ -51,7 +54,7 @@
             <div class="orbit-disc-back" aria-hidden="true"></div>
             <button class="orbit-core" id="orbit-open" type="button" title="查看全部糖果原始回答" aria-label="总体不降智率，查看全部原始回答">
               <span class="orbit-caption">OVERALL PASS</span>
-              <span class="orbit-label">总体不降智率</span>
+              <span class="orbit-label">所选模型不降智率</span>
               <strong id="overall-rate">—</strong><small id="overall-detail">等待有效回答</small>
               <span class="orbit-action" aria-hidden="true">原始回答 ↗</span>
             </button>
@@ -82,6 +85,12 @@
         </details>
       </section>
 
+      <section id="attribution" class="section" aria-labelledby="attribution-title">
+        <div class="section-head"><div><p class="eyebrow">MODELTRACE / ATTRIBUTION</p><h2 id="attribution-title">模型归因概率</h2></div><div class="section-meta">每 30 分钟 · 每模型 3 次独立挑战</div></div>
+        <p class="attribution-caveat">候选库内的相似性归因，不是模型身份认证。分组可能调度不同账号，三次请求不保证来自同一账号。</p>
+        <div class="attribution-scroll"><table class="attribution-table"><thead><tr><th>请求模型</th><th>最新状态</th><th>最相似候选</th><th>候选概率</th><th>请求模型概率</th><th>测试时间</th><th></th></tr></thead><tbody id="attribution-rows"></tbody></table></div>
+        <details class="disclosure"><summary>测试方法与概率口径</summary><p class="attribution-caveat">采用 ModelTrace 原始挑战、算法和 16 模型指纹库。每次要求直接选择 292–332 个 1–355 的整数，禁止工具。三份有效回答分别评分后平均，以对应校准温度进行全局 softmax；家族概率为其模型概率之和。概率只在候选库内成立，未收录模型也会被归到已有候选。系统提示、推理设置和路由差异可能影响结果。请求失败或有效回答不足三份时不发布概率。</p><a href="https://github.com/xqy2006/ModelTrace" target="_blank" rel="noopener noreferrer">ModelTrace 源项目 ↗</a></details>
+      </section>
       <section id="pelican" class="section" aria-labelledby="pelican-title">
         <div class="section-head"><div><p class="eyebrow">02 / PELICAN RIDE</p><h2 id="pelican-title">鹈鹕骑行</h2><p class="section-intro">同一道题，不同次生成。每次真实完成的 HTML 都会自动加入这里，点击即可放大观看动画。</p></div><div class="section-meta"><span class="source-tag" id="gallery-source"><span class="dot archive-dot"></span>已导入样本</span><p id="gallery-summary">正在读取原始产物</p></div></div>
         <div class="gallery-toolbar"><div class="filters" role="group" aria-label="按复核状态筛选"><button class="active" data-filter="all" aria-pressed="true" type="button">全部 <span id="filter-all">0</span></button><button data-filter="unreviewed" aria-pressed="false" type="button">待复核 <span id="filter-unreviewed">0</span></button><button data-filter="flagged" aria-pressed="false" type="button">疑似异常 <span id="filter-flagged">0</span></button></div><label class="search-label"><span aria-hidden="true">⌕</span><input id="gallery-search" type="search" placeholder="搜索样本 / 账号" aria-label="搜索样本编号或账号"></label></div>
@@ -99,6 +108,7 @@
   <dialog id="prompt-dialog" class="text-dialog" aria-labelledby="prompt-title"><div class="dialog-head"><div><p class="eyebrow">TEST PROMPT</p><h2 id="prompt-title">测试题目</h2></div><button class="close-dialog" type="button" aria-label="关闭题目">×</button></div><div id="prompt-content" class="prompt-content"></div><div class="dialog-actions"><span id="prompt-rule"></span><button id="copy-prompt" class="button" type="button">复制完整题目</button></div></dialog>
   <dialog id="answer-dialog" class="text-dialog answer-dialog" aria-labelledby="answer-title"><div class="dialog-head"><div><p class="eyebrow">CANDY / ORIGINAL RESPONSE</p><h2 id="answer-title">糖果原始回答</h2></div><button class="close-dialog" type="button" aria-label="关闭回答">×</button></div><p id="answer-context" class="muted"></p><div id="answer-list" class="answer-list"></div><div class="answer-meta" id="answer-meta"></div><pre id="answer-body" class="answer-body"></pre></dialog>
   <dialog id="viewer-dialog" class="viewer-dialog" aria-labelledby="viewer-title"><div class="dialog-head"><div><p class="eyebrow">PELICAN / ORIGINAL HTML</p><h2 id="viewer-title">鹈鹕骑行</h2></div><button class="close-dialog" type="button" aria-label="关闭动画预览">×</button></div><div class="viewer-toolbar"><span class="muted" id="viewer-meta"></span><div><button id="view-animation" class="text-button" type="button">动画预览</button><button id="view-source" class="text-button" type="button">HTML 源码</button></div></div><div id="viewer-stage" class="viewer-stage"></div><pre id="viewer-source" class="viewer-source" hidden></pre><div class="viewer-bottom"><span>隔离预览 · 保留原始生成内容</span><div><button id="prev-drawing" class="button secondary" type="button" aria-label="上一个样本">← 上一个</button><button id="next-drawing" class="button secondary" type="button" aria-label="下一个样本">下一个 →</button></div></div></dialog>
+  <dialog id="attribution-dialog" class="text-dialog" aria-labelledby="attribution-dialog-title"><div class="dialog-head"><h2 id="attribution-dialog-title">归因详情</h2><button type="button" class="close-dialog" aria-label="关闭归因详情">×</button></div><div id="attribution-details"></div></dialog>
   <div id="toast" class="toast" role="status" hidden></div>
   <noscript><p class="noscript-note">请启用 JavaScript 以查看测试记录与动画。本站无需 API Key。</p></noscript>
 </body>
