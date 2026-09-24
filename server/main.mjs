@@ -23,7 +23,7 @@ config.candyEnabled=Boolean(config.openaiBaseUrl&&config.openaiApiKey&&config.ca
 config.pelicanEnabled=config.pelicanExecMode==='http' ? Boolean(config.codexExecUrl) : Boolean(config.codexExecCommandJson);
 const models=[...new Set((env.PROBE_MODELS||config.candyModel).split(',').map(x=>x.trim()).filter(Boolean))];
 config.attributionEnabled=envBool(env.ATTRIBUTION_ENABLED,false)&&config.candyEnabled;
-config.attributionTimeoutMs=positiveInt(env.ATTRIBUTION_TIMEOUT_MS,90000);
+config.attributionTimeoutMs=positiveInt(env.ATTRIBUTION_TIMEOUT_MS,180000);
 
 const store=new JsonStore(config.stateFile,{candy:config.candyHistoryLimit,pelicans:config.pelicanHistoryLimit});
 await store.load();

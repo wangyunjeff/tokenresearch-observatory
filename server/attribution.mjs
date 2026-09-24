@@ -16,14 +16,16 @@ export async function runAttribution(config,store,model,fetchImpl=fetch){
     for(const challenge of generateChallenges(3)){
       const sample={...challenge,status:'running'};row.samples.push(sample);
       try{
-        const response=await fetchImpl(joinResponsesUrl(config.openaiBaseUrl),{method:'POST',headers:{'content-type':'application/json',authorization:`Bearer ${config.openaiApiKey}`},body:JSON.stringify({model,input:[{role:'user',content:[{type:'input_text',text:challenge.prompt}]}],stream:true,store:false,max_output_tokens:4096}),signal:AbortSignal.timeout(config.attributionTimeoutMs||90000)});
+        const response=await fetchImpl(joinResponsesUrl(config.openaiBaseUrl),{method:'POST',headers:{'content-type':'application/json',authorization:`Bearer ${config.openaiApiKey}`},body:JSON.stringify({model,input:[{role:'user',content:[{type:'input_text',text:challenge.prompt}]}],stream:true,store:false,max_output_tokens:4096}),signal:AbortSignal.timeout(config.attributionTimeoutMs||180000)});
         sample.http_status=response.status;
         const raw=await readResponsesBody(response);
         if(!response.ok)throw new Error(`HTTP ${response.status}`);
+        let json;try{json=JSON.parse(raw);}catch{}
+        if(json?.error||['failed','incomplete'].includes(json?.status))throw new Error(`Upstream ${json.status||'error'}: ${json.error?.code||json.incomplete_details?.reason||'invalid_response'}`);
         for(const line of raw.split(/\r?\n/)){
           if(!line.startsWith('data:'))continue;
           let event;try{event=JSON.parse(line.slice(5));}catch{continue;}
-          if(['response.failed','response.incomplete','error'].includes(event.type))throw new Error(`${event.type}: ${event.response?.error?.code||event.error?.code||event.response?.incomplete_details?.reason||'upstream_failure'}`);
+          if(['response.failed','response.incomplete','error'].includes(event.type))throw new Error(`${event.type}: ${event.response?.error?.code||event.error?.code||event.code||event.response?.incomplete_details?.reason||'upstream_failure'}`);
         }
         sample.text=extractResponsesText(raw);
         if(!sample.text)throw new Error('No output text');

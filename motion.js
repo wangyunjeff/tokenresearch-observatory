@@ -34,6 +34,7 @@
   });
   window.addEventListener('observatory:render',event=>{
     const rate=event.detail.rate;
+    rateTween?.kill();
     if(gsap&&!paused){
       if(first){
         gsap.from('.hero-copy > *',{y:12,opacity:0,duration:.7,stagger:.07,clearProps:'all'});

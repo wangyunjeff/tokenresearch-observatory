@@ -9,7 +9,7 @@ Environment configuration:
 ```
 PROBE_MODELS=gpt-6-astra,gpt-5.6-terra,gpt-5.6-sol,gpt-6-sol,gpt-6-luna
 ATTRIBUTION_ENABLED=true
-ATTRIBUTION_TIMEOUT_MS=90000
+ATTRIBUTION_TIMEOUT_MS=180000
 CANDY_HISTORY_LIMIT=5000
 ```
 

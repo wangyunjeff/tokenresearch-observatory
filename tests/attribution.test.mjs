@@ -16,6 +16,8 @@ assert.equal(row.method.bank_sha256.length,64);assert.ok(saves>=5);
 let n=0;
 const failed=await runAttribution(config,store,'gpt-6-astra',async()=>++n===2?new Response('data: '+JSON.stringify({type:'response.failed',response:{error:{code:'gateway_concurrency_limit'}}})+'\n\n'):new Response(JSON.stringify({output_text:sequence})));
 assert.equal(failed.status,'error');assert.equal(failed.result,undefined);assert.match(failed.samples[1].error,/gateway_concurrency_limit/);
+const truncated=await runAttribution(config,store,'gpt-6-astra',async()=>new Response(JSON.stringify({status:'incomplete',output_text:sequence,incomplete_details:{reason:'max_output_tokens'}})));
+assert.equal(truncated.status,'error');assert.equal(truncated.result,undefined);
 let active=0,max=0,finished=0;
 await runLimited([1,2,3,4,5],async()=>{active++;max=Math.max(max,active);await new Promise(r=>setTimeout(r,5));active--;finished++;});
 assert.equal(max,2);assert.equal(finished,5);

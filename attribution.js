@@ -24,7 +24,8 @@
     (data.models||['gpt-6-astra']).forEach(id=>{
       const history=(data.attribution||[]).filter(row=>row.model===id).sort((a,b)=>Date.parse(b.timestamp)-Date.parse(a.timestamp));
       const row=history[0],result=row?.status==='completed'?row.result:null,tr=document.createElement('tr');if(model===id)tr.className='selected';
-      [id,row?(row.status==='completed'?'已完成':row.status==='running'?`检测中 ${row.samples?.filter(s=>s.status==='completed').length||0}/3`:'请求或样本异常'):'等待首轮',result?.prediction||'—',result?percent(result.probability):'—',result?percent(result.results.find(r=>r.model===id)?.probability||0):'—',row?date(row.timestamp):'—'].forEach(text=>tr.append(node('td',text)));
+      const labels=['请求模型','最新状态','最相似候选','候选概率','请求模型概率','测试时间'];
+      [id,row?(row.status==='completed'?'已完成':row.status==='running'?`检测中 ${row.samples?.filter(s=>s.status==='completed').length||0}/3`:'请求或样本异常'):'等待首轮',result?.prediction||'—',result?percent(result.probability):'—',result?percent(result.results.find(r=>r.model===id)?.probability||0):'—',row?date(row.timestamp):'—'].forEach((text,i)=>{const cell=node('td',text);cell.dataset.label=labels[i];tr.append(cell);});
       const cell=document.createElement('td');if(row){const b=node('button','详情 ↗','text-button');b.type='button';b.onclick=()=>show(row,history);cell.append(b);}tr.append(cell);body.append(tr);
     });
   });
