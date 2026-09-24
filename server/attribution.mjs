@@ -10,7 +10,7 @@ export const method={name:'ModelTrace',revision:'55a2e4a55170423b484d701e9a82ab6
 
 export async function runAttribution(config,store,model,fetchImpl=fetch){
   const started=Date.now();
-  const row={id:makeId('attribution',started),model,timestamp:new Date(started).toISOString(),status:'running',method,protocol:'responses',reasoning_effort:'provider_default',samples:[]};
+  const row={id:makeId('attribution',started),model,group_id:config.groupId||'primary',group_name:config.groupName||'Primary',timestamp:new Date(started).toISOString(),status:'running',method,protocol:'responses',reasoning_effort:'provider_default',samples:[]};
   store.state.attribution??=[];store.state.attribution.push(row);await store.save();
   try{
     for(const challenge of generateChallenges(3)){
@@ -42,7 +42,7 @@ export async function runAttribution(config,store,model,fetchImpl=fetch){
   await store.save();return row;
 }
 
-export async function runLimited(items,fn,concurrency=2){
+export async function runLimited(items,fn,concurrency=1){
   let next=0;
   await Promise.all(Array.from({length:Math.min(concurrency,items.length)},async()=>{while(next<items.length){const item=items[next++];await fn(item);}}));
 }

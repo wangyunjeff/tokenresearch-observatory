@@ -20,5 +20,5 @@ const truncated=await runAttribution(config,store,'gpt-6-astra',async()=>new Res
 assert.equal(truncated.status,'error');assert.equal(truncated.result,undefined);
 let active=0,max=0,finished=0;
 await runLimited([1,2,3,4,5],async()=>{active++;max=Math.max(max,active);await new Promise(r=>setTimeout(r,5));active--;finished++;});
-assert.equal(max,2);assert.equal(finished,5);
+assert.equal(max,1);assert.equal(finished,5);
 console.log('PASS attribution: three valid outputs, calibrated distribution, streamed failure, bounded concurrency');

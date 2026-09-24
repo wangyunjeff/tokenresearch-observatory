@@ -18,8 +18,8 @@
   <script src="vendor/gsap.min.js" defer></script>
   <script src="motion.js?v=multi-20260924" defer></script>
   <script src="thumbnail.js?v=hover-20260915" defer></script>
-  <link rel="stylesheet" href="attribution.css?v=20260924b">
-  <script src="attribution.js?v=20260924b" defer></script>
+  <link rel="stylesheet" href="attribution.css?v=20260924-groups">
+  <script src="attribution.js?v=20260924-groups" defer></script>
   <script src="app.js?v=multi-20260924" defer></script>
   <link rel="stylesheet" href="visits.css?v=1">
   <script src="visits.js?v=2" defer></script>
@@ -88,6 +88,7 @@
       <section id="attribution" class="section" aria-labelledby="attribution-title">
         <div class="section-head"><div><p class="eyebrow">MODELTRACE / ATTRIBUTION</p><h2 id="attribution-title">模型归因概率</h2></div><div class="section-meta">每 30 分钟 · 每模型 3 次独立挑战</div></div>
         <p class="attribution-caveat">候选库内的相似性归因，不是模型身份认证。分组可能调度不同账号，三次请求不保证来自同一账号。</p>
+        <div id="attribution-groups" class="model-tabs attribution-groups" role="group" aria-label="归因测试分组"></div>
         <div class="attribution-scroll"><table class="attribution-table"><thead><tr><th>请求模型</th><th>最新状态</th><th>最相似候选</th><th>候选概率</th><th>请求模型概率</th><th>测试时间</th><th></th></tr></thead><tbody id="attribution-rows"></tbody></table></div>
         <details class="disclosure"><summary>测试方法与概率口径</summary><p class="attribution-caveat">采用 ModelTrace 原始挑战、算法和 16 模型指纹库。每次要求直接选择 292–332 个 1–355 的整数，禁止工具。三份有效回答分别评分后平均，以对应校准温度进行全局 softmax；家族概率为其模型概率之和。概率只在候选库内成立，未收录模型也会被归到已有候选。系统提示、推理设置和路由差异可能影响结果。请求失败或有效回答不足三份时不发布概率。</p><a href="https://github.com/xqy2006/ModelTrace" target="_blank" rel="noopener noreferrer">ModelTrace 源项目 ↗</a></details>
       </section>
